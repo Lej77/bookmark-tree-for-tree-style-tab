@@ -1,0 +1,95 @@
+{
+    "options_hasTSTContextMenu": {
+        "message": "Show context menu item in Tree Style Tab's Sidebar."
+    },
+    "options_hasMTHContextMenu": {
+        "message": "Show context menu item for Multiple Tab Handler's selection."
+    },
+    "options_customTSTContextMenuLabel": {
+        "message": "Custom label for Tree Style Tab's context menu item (place a \"&\" symbol before the letter that should be used as the keyboard shortcut) (empty to use default label):"
+    },
+    "options_customMTHContextMenuLabel": {
+        "message": "Custom label for Multiple Tab Handler's context menu item (place a \"&\" symbol before the letter that should be used as the keyboard shortcut) (empty to use default label):"
+    },
+    "options_bookmarkSuffix": {
+        "message": "Text to append to title of bookmark folders saved with Tree Style Tab data:"
+    },
+    "options_delayAfterTabOpen": {
+        "message": "Delay after opening a tab (-1 to disable):"
+    },
+    "options_Milliseconds": {
+        "message": "milliseconds."
+    },
+    "options_setParentAfterTabCreate": {
+        "message": "Restore tree data after tabs are opened."
+    },
+    "options_detachIncorrectParentsAfter": {
+        "message": "Detach incorrect parents after a delay (-1 to disable):"
+    },
+    "options_allowSeparatorsWhenRestoringTree": {
+        "message": "Parse tree data from separators as well as folders when restoring trees from bookmarks."
+    },
+    "options_bookmarkTreeWithSeparators": {
+        "message": "Save tree data with bookmark separators instead of bookmark folders."
+    },
+    "options_bookmarkGroupTabsWithLegacyURL": {
+        "message": "Bookmark Tree Style Tab group tabs with the legacy URL \"about:treestyletab-group\". This means that they will be opened correctly even if Tree Style Tab's internal id is changed."
+    },
+    "options_fixGroupTabURLsOnRestore": {
+        "message": "Fix Tree Style Tab group tab URLs. Allows opening group tabs with the legacy URL \"about:treestyletab-group\" and also group tab bookmarks that use the wrong internal id for Tree Style Tab."
+    },
+    "options_treeStyleTabInternalId": {
+        "message": "Cached internal id for Tree Style Tab (used to fix group tabs):"
+    },
+    "options_warnWhenBookmarkingMoreThan": {
+        "message": "Warn when attempting to bookmark more than this many tabs (-1 to disable):"
+    },
+    "options_warnWhenRestoringMoreThan": {
+        "message": "Warn when attempting to restore more than this many bookmarks (-1 to disable):"
+    },
+    "options_resetSettings": {
+        "message": "Reset Settings"
+    },
+    "options_resetSettings_Prompt": {
+        "message": "Do you want to reset all settings to default values?"
+    },
+    "contextMenu_BookmarkTree": {
+        "message": "Bookmark Tr&ee Data"
+    },
+    "contextMenu_RestoreTree": {
+        "message": "Restore Tree"
+    },
+    "bookmark_MultipleTabsTitle": {
+        "message": "$firstTitle$ and more",
+        "placeholders": {
+            "firstTitle": {
+                "content": "$1"
+            }
+        }
+    },
+    "bookmark_DefaultTSTSuffix": {
+        "message": " [TST]"
+    },
+    "notifications_BookmarkTree_Confirm_Title": {
+        "message": "Do you really want to bookmark these tabs?"
+    },
+    "notifications_BookmarkTree_Confirm_Message": {
+        "message": "Do you really want to bookmark $count$ tab(s)? If so then click on this notification, otherwise close it.",
+        "placeholders": {
+            "count": {
+                "content": "$1"
+            }
+        }
+    },
+    "notifications_RestoreTree_Confirm_Title": {
+        "message": "Do you really want to open these bookmarks?"
+    },
+    "notifications_RestoreTree_Confirm_Message": {
+        "message": "Do you really want to open $count$ bookmark(s)? If so then click on this notification, otherwise close it.",
+        "placeholders": {
+            "count": {
+                "content": "$1"
+            }
+        }
+    }
+}

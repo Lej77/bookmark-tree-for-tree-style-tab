@@ -1,0 +1,37 @@
+body {
+    overflow-y: hidden;
+    font-size: 1.2em;
+}
+
+.textSelectable {
+    -moz-user-select: text;
+}
+.textNotSelectable {
+    -moz-user-select: none;
+}
+
+*[class*='message'] {
+    white-space: pre-line;
+}
+
+.area {
+    border: 1px solid black;
+    border-radius: 5px;
+}
+.area:not(.noPadding) {
+    padding: 10px;
+}
+.area:not(.noMargin) {    
+    margin: 3px;
+}
+
+
+input[type="text"] {
+    width: 100%;
+}
+
+
+
+#resetSettingsButton {
+    padding: 10px;
+}
