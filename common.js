@@ -418,6 +418,7 @@ function getDefaultSettings() {
     setParentAfterTabCreate: true,
     detachIncorrectParentsAfter: 1500,
     createTempTabWhenRestoring: true,
+    ensureOneParentWhenCreatingTabs: true,
 
     allowSeparatorsWhenRestoringTree: true,
     bookmarkTreeWithSeparators: true,

@@ -60,15 +60,16 @@ class TreeInfoNode {
 
   async openAsTabs({
     handleParentId = null,
-    handleParentLast = true,
+    handleParentLast = false,
     parentTabId = null,
     windowId = null,
     delayAfterTabOpen = -1,
     detachIncorrectParentAfterDelay = -1,
     checkAllowedParent = null,
     allowNonCreatedParent = false,
-    createTempTab = true,
+    createTempTab = false,
     focusPreviousTab = false,
+    dontFocusOnNewTabs = false,
   } = {}) {
 
     let previousActiveTab = null;
@@ -146,71 +147,77 @@ class TreeInfoNode {
     // #region Create Tab
 
     let tab;
-    if (this.url) {
+    try {
 
-      // #region Create Details
+      if (this.url) {
 
-      let createDetails = { url: this.url };
+        // #region Create Details
 
-      if (createTempTab) {
-        createDetails.active = false;
-      }
+        let createDetails = { url: this.url };
 
-      if (createDetails.url.toLowerCase() === 'about:newtab') {
-        delete createDetails.url;
-      }
+        if (dontFocusOnNewTabs) {
+          createDetails.active = false;
+        }
 
-      if (parentTabId && !handleParentId) {
-        createDetails.openerTabId = parentTabId;
-      }
-      if (windowId || windowId === 0) {
-        createDetails.windowId = windowId;
-      }
+        if (createDetails.url.toLowerCase() === 'about:newtab') {
+          delete createDetails.url;
+        }
 
-      // #endregion Create Details
+        if (parentTabId && !handleParentId) {
+          createDetails.openerTabId = parentTabId;
+        }
+        if (windowId || windowId === 0) {
+          createDetails.windowId = windowId;
+        }
 
-
-      // #region Create Tab
-
-      try {
-        tab = await browser.tabs.create(createDetails);
-      } catch (error) {
-        let lastURL = createDetails.url;
-        createDetails.url = `about:blank?${lastURL}`;
-        console.log(`Failed to open "${lastURL}" open "${createDetails.url}" instead.`);
-        tab = await browser.tabs.create(createDetails);
-      }
-      tabs.push(tab);
-
-      // #endregion Create Tab
+        // #endregion Create Details
 
 
-      if (delayAfterTabOpen >= 0) {
-        await trackedDelay(delayAfterTabOpen);
-      }
-      if (parentTabId && handleParentId) {
-        handleParentId(tab, parentTabId);
-      }
-      if (!parentTabId && ((detachIncorrectParentAfterDelay || detachIncorrectParentAfterDelay === 0) && (detachIncorrectParentAfterDelay === true || detachIncorrectParentAfterDelay >= 0))) {
-        let detach = async () => {
-          if (checkAllowedParent) {
-            if (await checkAllowedParent(tab)) {
-              return;
+        // #region Create Tab
+
+        try {
+          tab = await browser.tabs.create(createDetails);
+        } catch (error) {
+          let lastURL = createDetails.url;
+          createDetails.url = `about:blank?${lastURL}`;
+          console.log(`Failed to open "${lastURL}" open "${createDetails.url}" instead.`);
+          tab = await browser.tabs.create(createDetails);
+        }
+        tabs.push(tab);
+
+        // #endregion Create Tab
+
+
+        if (delayAfterTabOpen >= 0) {
+          await trackedDelay(delayAfterTabOpen);
+        }
+        if (parentTabId && handleParentId) {
+          handleParentId(tab, parentTabId);
+        }
+        if (!parentTabId && ((detachIncorrectParentAfterDelay || detachIncorrectParentAfterDelay === 0) && (detachIncorrectParentAfterDelay === true || detachIncorrectParentAfterDelay >= 0))) {
+          let detach = async () => {
+            if (checkAllowedParent) {
+              if (await checkAllowedParent(tab)) {
+                return;
+              }
             }
-          }
-          await browser.runtime.sendMessage(kTST_ID, {
-            type: 'detach',
-            tab: tab.id,
-          });
-        };
-        if (detachIncorrectParentAfterDelay === true) {
-          detach();
-        } else {
-          trackedDelay(detachIncorrectParentAfterDelay).finally(() => {
+            await browser.runtime.sendMessage(kTST_ID, {
+              type: 'detach',
+              tab: tab.id,
+            });
+          };
+          if (detachIncorrectParentAfterDelay === true) {
             detach();
-          });
+          } else {
+            trackedDelay(detachIncorrectParentAfterDelay).finally(() => {
+              detach();
+            });
+          }
         }
       }
+
+    } catch (error) {
+      console.log('Failed to create tab!\n', error);
     }
 
     // #endregion Create Tab
@@ -221,12 +228,16 @@ class TreeInfoNode {
     for (let node of this.children) {
       let childTabs = await node.openAsTabs({
         handleParentId,
+        handleParentLast: false,
         parentTabId: (tab || {}).id || parentTabId,
         windowId: (tab || {}).windowId || windowId,
         delayAfterTabOpen,
         detachIncorrectParentAfterDelay,
         checkAllowedParent,
+        allowNonCreatedParent: false,
         createTempTab: false,
+        focusPreviousTab,
+        dontFocusOnNewTabs,
       });
       tabs.push.apply(tabs, childTabs);
     }
@@ -669,7 +680,8 @@ async function restoreTree({
   supportSeparators = true,
   fixGroupTabURLs = false,
   warnWhenMoreThan = -1,
-  createTempTab = true,
+  createTempTab = false,
+  ensureOneParent = false
 } = {}) {
 
   let treeNodes = await TreeInfoNode.parseFromBookmarks({ bookmarkId, supportSeparators });
@@ -684,6 +696,10 @@ async function restoreTree({
   }
 
   let rootNode = treeNodes[0].rootNode;
+
+  if (ensureOneParent && !rootNode.url) {
+    rootNode.url = getGroupTabURL({ name: rootNode.title });
+  }
 
   if (fixGroupTabURLs) {
     await rootNode.convertGroupURL(false);
@@ -915,6 +931,7 @@ settingsLoaded.finally(async () => {
       warnWhenMoreThan: settings.warnWhenRestoringMoreThan,
       detachIncorrectParentAfterDelay: settings.detachIncorrectParentsAfter,
       createTempTab: settings.createTempTabWhenRestoring,
+      ensureOneParent: settings.ensureOneParentWhenCreatingTabs,
     };
   };
 

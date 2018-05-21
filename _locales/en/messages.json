@@ -1,4 +1,19 @@
 {
+    "options_section_ContextMenuActive": {
+        "message": "Context Menu Items"
+    },
+    "options_section_ContextMenuLabels": {
+        "message": "Context Menu Labels"
+    },
+    "options_section_CreateBookmark": {
+        "message": "Create Bookmark from Tabs"
+    },
+    "options_section_CreateTabs": {
+        "message": "Create Tabs from Bookmarks"
+    },
+    "options_section_TreeStyleTabId": {
+        "message": "Internal id for Tree Style Tab"
+    },
     "options_hasTSTContextMenu": {
         "message": "Show context menu item in Tree Style Tab's Sidebar."
     },
@@ -28,6 +43,9 @@
     },
     "options_createTempTabWhenRestoring": {
         "message": "Create a temporary tab to focus on when restoring tabs."
+    },
+    "options_ensureOneParentWhenCreatingTabs": {
+        "message": "Ensure that the created tabs have a common parent."
     },
     "options_detachIncorrectParentsAfter": {
         "message": "Detach incorrect parents after a delay (-1 to disable):"

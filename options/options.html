@@ -9,107 +9,121 @@
 
 <body>
   <div>
-    <div>
-      <div class="area">
-        <label>
-          <input id="hasTSTContextMenu" type="checkbox">
-          <text class="message_options_hasTSTContextMenu"></text>
-        </label>
-        <br />
-        <br />
-        <label>
-          <input id="hasMTHContextMenu" type="checkbox">
-          <text class="message_options_hasMTHContextMenu"></text>
-        </label>
+    <div class="sectionArea">
+      <header class="message_options_section_ContextMenuActive"></header>
+      <label>
+        <input id="hasTSTContextMenu" type="checkbox">
+        <text class="message_options_hasTSTContextMenu"></text>
+      </label>
+      <br />
+      <br />
+      <label>
+        <input id="hasMTHContextMenu" type="checkbox">
+        <text class="message_options_hasMTHContextMenu"></text>
+      </label>
+    </div>
+    <br />
+
+    <div class="sectionArea">
+      <header class="message_options_section_ContextMenuLabels"></header>
+      <div>
+        <label class="message_options_customTSTContextMenuLabel"></label>
+        <input id="customTSTContextMenuLabel" type="text">
       </div>
       <br />
-      <div class="area">
-        <div>
-          <label class="message_options_customTSTContextMenuLabel"></label>
-          <input id="customTSTContextMenuLabel" type="text">
-        </div>
-        <br />
-        <div>
-          <label class="message_options_customMTHContextMenuLabel"></label>
-          <input id="customMTHContextMenuLabel" type="text">
-        </div>
-        <br />
-        <div>
-          <label class="message_options_customRestoreTreeContextMenuLabel"></label>
-          <input id="customRestoreTreeContextMenuLabel" type="text">
-        </div>
+      <div>
+        <label class="message_options_customMTHContextMenuLabel"></label>
+        <input id="customMTHContextMenuLabel" type="text">
       </div>
       <br />
-      <div class="area">
-        <div>
-          <label class="message_options_bookmarkSuffix"></label>
-          <input id="bookmarkSuffix" type="text">
-        </div>
-        <br />
-        <label>
-          <input id="bookmarkTreeWithSeparators" type="checkbox">
-          <text class="message_options_bookmarkTreeWithSeparators"></text>
-        </label>
-        <br />
-        <br />
-        <label>
-          <input id="bookmarkGroupTabsWithLegacyURL" type="checkbox">
-          <text class="message_options_bookmarkGroupTabsWithLegacyURL"></text>
-        </label>
-        <p>
-          <span class="message_options_warnWhenBookmarkingMoreThan"></span>
-          <input id="warnWhenBookmarkingMoreThan" type="number" min="-1">
-        </p>
-      </div>
-      <br />
-      <div class="area">
-        <p>
-          <span class="message_options_delayAfterTabOpen"></span>
-          <input id="delayAfterTabOpen" type="number" min="-1">
-          <span class="message_options_Milliseconds"></span>
-        </p>
-        <label>
-          <input id="setParentAfterTabCreate" type="checkbox">
-          <text class="message_options_setParentAfterTabCreate"></text>
-        </label>
-        <br />
-        <br />
-        <p>
-          <span class="message_options_detachIncorrectParentsAfter"></span>
-          <input id="detachIncorrectParentsAfter" type="number" min="-1">
-          <span class="message_options_Milliseconds"></span>
-        </p>
-        <label>
-          <input id="createTempTabWhenRestoring" type="checkbox">
-          <text class="message_options_createTempTabWhenRestoring"></text>
-        </label>
-        <br />
-        <br />
-        <br />
-        <label>
-          <input id="allowSeparatorsWhenRestoringTree" type="checkbox">
-          <text class="message_options_allowSeparatorsWhenRestoringTree"></text>
-        </label>
-        <br />
-        <br />
-        <label>
-          <input id="fixGroupTabURLsOnRestore" type="checkbox">
-          <text class="message_options_fixGroupTabURLsOnRestore"></text>
-        </label>
-        <p>
-          <span class="message_options_warnWhenRestoringMoreThan"></span>
-          <input id="warnWhenRestoringMoreThan" type="number" min="-1">
-        </p>
-      </div>
-      <br />
-      <div class="area">
-        <div>
-          <label class="message_options_treeStyleTabInternalId"></label>
-          <input id="treeStyleTabInternalId" type="text">
-        </div>
+      <div>
+        <label class="message_options_customRestoreTreeContextMenuLabel"></label>
+        <input id="customRestoreTreeContextMenuLabel" type="text">
       </div>
     </div>
     <br />
+
+    <div class="sectionArea">
+      <header class="message_options_section_CreateBookmark"></header>
+      <div>
+        <label class="message_options_bookmarkSuffix"></label>
+        <input id="bookmarkSuffix" type="text">
+      </div>
+      <br />
+      <label>
+        <input id="bookmarkTreeWithSeparators" type="checkbox">
+        <text class="message_options_bookmarkTreeWithSeparators"></text>
+      </label>
+      <br />
+      <br />
+      <label>
+        <input id="bookmarkGroupTabsWithLegacyURL" type="checkbox">
+        <text class="message_options_bookmarkGroupTabsWithLegacyURL"></text>
+      </label>
+      <p>
+        <span class="message_options_warnWhenBookmarkingMoreThan"></span>
+        <input id="warnWhenBookmarkingMoreThan" type="number" min="-1">
+      </p>
+    </div>
+    <br />
+
+    <div class="sectionArea">
+      <header class="message_options_section_CreateTabs"></header>
+      <p>
+        <span class="message_options_delayAfterTabOpen"></span>
+        <input id="delayAfterTabOpen" type="number" min="-1">
+        <span class="message_options_Milliseconds"></span>
+      </p>
+      <label>
+        <input id="setParentAfterTabCreate" type="checkbox">
+        <text class="message_options_setParentAfterTabCreate"></text>
+      </label>
+      <br />
+      <br />
+      <p>
+        <span class="message_options_detachIncorrectParentsAfter"></span>
+        <input id="detachIncorrectParentsAfter" type="number" min="-1">
+        <span class="message_options_Milliseconds"></span>
+      </p>
+      <label>
+        <input id="createTempTabWhenRestoring" type="checkbox">
+        <text class="message_options_createTempTabWhenRestoring"></text>
+      </label>
+      <br />
+      <br />
+      <label>
+        <input id="ensureOneParentWhenCreatingTabs" type="checkbox">
+        <text class="message_options_ensureOneParentWhenCreatingTabs"></text>
+      </label>
+      <br />
+      <br />
+      <br />
+      <label>
+        <input id="allowSeparatorsWhenRestoringTree" type="checkbox">
+        <text class="message_options_allowSeparatorsWhenRestoringTree"></text>
+      </label>
+      <br />
+      <br />
+      <label>
+        <input id="fixGroupTabURLsOnRestore" type="checkbox">
+        <text class="message_options_fixGroupTabURLsOnRestore"></text>
+      </label>
+      <p>
+        <span class="message_options_warnWhenRestoringMoreThan"></span>
+        <input id="warnWhenRestoringMoreThan" type="number" min="-1">
+      </p>
+    </div>
+    <br />
+
+    <div class="sectionArea collapsed">
+      <header class="message_options_section_TreeStyleTabId"></header>
+      <div>
+        <label class="message_options_treeStyleTabInternalId"></label>
+        <input id="treeStyleTabInternalId" type="text">
+      </div>
+    </div>
+    <br />
+
     <button id="resetSettingsButton" class="message_options_resetSettings"></button>
   </div>
   <script src="options.js"></script>
