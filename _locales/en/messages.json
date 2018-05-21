@@ -11,6 +11,9 @@
     "options_customMTHContextMenuLabel": {
         "message": "Custom label for Multiple Tab Handler's context menu item (place a \"&\" symbol before the letter that should be used as the keyboard shortcut) (empty to use default label):"
     },
+    "options_customRestoreTreeContextMenuLabel": {
+        "message": "Custom label for Restore Tree context menu item (empty to use default label):"
+    },
     "options_bookmarkSuffix": {
         "message": "Text to append to title of bookmark folders saved with Tree Style Tab data:"
     },
@@ -22,6 +25,9 @@
     },
     "options_setParentAfterTabCreate": {
         "message": "Restore tree data after tabs are opened."
+    },
+    "options_createTempTabWhenRestoring": {
+        "message": "Create a temporary tab to focus on when restoring tabs."
     },
     "options_detachIncorrectParentsAfter": {
         "message": "Detach incorrect parents after a delay (-1 to disable):"

@@ -41,6 +41,23 @@ let defineProperty = (obj, propertyName, get, set) => {
   Object.defineProperty(obj, propertyName, getSet);
 };
 
+/**
+ * Copy an object by serializing and then deserializing it with JSON.
+ * 
+ * @param {Object} value Object to copy.
+ * @returns {Object} A copy of the provided object.
+ */
+let deepCopy = (value) => {
+  if (!value) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  let jsonCopy = JSON.parse(JSON.stringify(value));
+  return jsonCopy;
+};
+
 
 // #region Delays
 
@@ -391,6 +408,7 @@ function getDefaultSettings() {
     hasTSTContextMenu: true,
     hasMTHContextMenu: true,
 
+    customRestoreTreeContextMenuLabel: '',
     customTSTContextMenuLabel: '',
     customMTHContextMenuLabel: '',
 
@@ -399,6 +417,7 @@ function getDefaultSettings() {
     delayAfterTabOpen: 200,
     setParentAfterTabCreate: true,
     detachIncorrectParentsAfter: 1500,
+    createTempTabWhenRestoring: true,
 
     allowSeparatorsWhenRestoringTree: true,
     bookmarkTreeWithSeparators: true,
