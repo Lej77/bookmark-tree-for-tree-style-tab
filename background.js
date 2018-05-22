@@ -389,11 +389,12 @@ class TreeInfoNode {
     handleParentLast = false,
     parentTabId = null,
     windowId = null,
-    delayAfterTabOpen = -1,
-    detachIncorrectParentAfterDelay = -1,
+    delayAfterTabOpen = () => -1,
+    detachIncorrectParentAfterDelay = () => -1,
     checkAllowedParent = null,
     allowNonCreatedParent = false,
     createTempTab = false,
+    groupUnderTempTab = false,
     focusPreviousTab = false,
     dontFocusOnNewTabs = false,
   } = {}) {
@@ -417,10 +418,15 @@ class TreeInfoNode {
     let tempTab = null;
     if (createTempTab) {
       let details = { active: true };
-      tempTab = await browser.tabs.create(details);
-      if (delayAfterTabOpen >= 0) {
-        await trackedDelay(delayAfterTabOpen);
+      if (parentTabId || parentTabId === 0) {
+        details.parentTabId = parentTabId;
       }
+      tempTab = await browser.tabs.create(details);
+      await trackedDelay(delayAfterTabOpen());
+    }
+
+    if (tempTab && groupUnderTempTab) {
+      parentTabId = tempTab.id;
     }
 
 
@@ -514,13 +520,13 @@ class TreeInfoNode {
         // #endregion Create Tab
 
 
-        if (delayAfterTabOpen >= 0) {
-          await trackedDelay(delayAfterTabOpen);
-        }
+        await trackedDelay(delayAfterTabOpen());
+
         if (parentTabId && handleParentId) {
           handleParentId(tab, parentTabId);
         }
-        if (!parentTabId && ((detachIncorrectParentAfterDelay || detachIncorrectParentAfterDelay === 0) && (detachIncorrectParentAfterDelay === true || detachIncorrectParentAfterDelay >= 0))) {
+        let shouldDetach = detachIncorrectParentAfterDelay();
+        if (!parentTabId && ((shouldDetach || shouldDetach === 0) && (shouldDetach === true || shouldDetach >= 0))) {
           let detach = async () => {
             if (checkAllowedParent) {
               if (await checkAllowedParent(tab)) {
@@ -532,10 +538,10 @@ class TreeInfoNode {
               tab: tab.id,
             });
           };
-          if (detachIncorrectParentAfterDelay === true) {
+          if (shouldDetach === true) {
             detach();
           } else {
-            trackedDelay(detachIncorrectParentAfterDelay).finally(() => {
+            trackedDelay(shouldDetach).finally(() => {
               detach();
             });
           }
@@ -562,6 +568,7 @@ class TreeInfoNode {
         checkAllowedParent,
         allowNonCreatedParent: false,
         createTempTab: false,
+        groupUnderTempTab: false,
         focusPreviousTab,
         dontFocusOnNewTabs,
       });
@@ -587,7 +594,24 @@ class TreeInfoNode {
     } catch (error) { }
 
 
+
     if (tempTab) {
+      if (groupUnderTempTab) {
+        for (let tab of tabs) {
+          if (tab.openerTabId !== tempTab.id) {
+            continue;
+          }
+          try {
+            await browser.runtime.sendMessage(kTST_ID, {
+              type: 'detach',
+              tab: tab.id,
+            });
+          } catch (error) { }
+        }
+
+        await trackedDelay(delayAfterTabOpen());
+      }
+
       try {
         await browser.tabs.remove(tempTab.id);
       } catch (error) { }
@@ -930,14 +954,16 @@ async function bookmarkTree(
 
 async function restoreTree({
   bookmarkId,
+  delayAfterTabOpen = () => -1,
   handleParentLast = true,
-  detachIncorrectParentAfterDelay = false,
+  detachIncorrectParentAfterDelay = () => -1,
   allowNonCreatedParent = false,
   windowId = null,
   supportSeparators = true,
   fixGroupTabURLs = false,
   warnWhenMoreThan = -1,
   createTempTab = false,
+  groupUnderTempTab = false,
   ensureOneParent = false
 } = {}) {
 
@@ -966,8 +992,10 @@ async function restoreTree({
     rootNode.parent = null;
   }
 
-  if (ensureOneParent && !rootNode.url) {
+  let usingGroupTab = false;
+  if (ensureOneParent && !rootNode.url && rootNode.children > 1 && rootNode.hasContent) {
     rootNode.url = getGroupTabURL({ name: rootNode.title });
+    usingGroupTab = true;
   }
 
   if (fixGroupTabURLs) {
@@ -990,10 +1018,11 @@ async function restoreTree({
   return rootNode.openAsTabs({
     handleParentLast,
     windowId,
-    delayAfterTabOpen: settings.delayAfterTabOpen,
+    delayAfterTabOpen,
     detachIncorrectParentAfterDelay,
     allowNonCreatedParent,
     createTempTab,
+    groupUnderTempTab,
   });
 }
 
@@ -1194,12 +1223,14 @@ settingsLoaded.finally(async () => {
   };
   let getRestoreTreeSettings = () => {
     return {
+      delayAfterTabOpen: () => settings.delayAfterTabOpen,
       handleParentLast: settings.setParentAfterTabCreate,
       supportSeparators: settings.allowSeparatorsWhenRestoringTree,
       fixGroupTabURLs: settings.fixGroupTabURLsOnRestore,
       warnWhenMoreThan: settings.warnWhenRestoringMoreThan,
-      detachIncorrectParentAfterDelay: settings.detachIncorrectParentsAfter,
+      detachIncorrectParentAfterDelay: () => settings.detachIncorrectParentsAfter,
       createTempTab: settings.createTempTabWhenRestoring,
+      groupUnderTempTab: settings.gruopUnderTempTabWhenRestoring,
       ensureOneParent: settings.ensureOneParentWhenCreatingTabs,
     };
   };

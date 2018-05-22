@@ -1,5 +1,6 @@
 
 const messagePrefix = 'message_';
+const requiresPrefix = 'requires_';
 
 
 function setTextMessages(elementsToText = null) {
@@ -331,8 +332,76 @@ async function initiatePage() {
     animationInfo.update({ standard: true });
 
 
+    let checkRequired;
+    {
+        let requireObjs = [];
+        checkRequired = (affectedObject = null) => {
+            for (let obj of requireObjs) {
+                if (affectedObject && obj !== affectedObject) {
+                    continue;
+                }
+                let changed = obj.checkEnabled();
+                if (affectedObject && changed) {
+                    checkRequired();
+                }
+            }
+        };
+
+        let requireAreas = Array.from(document.querySelectorAll(`*[class*='${requiresPrefix}']`));
+        for (let i = 0; i < requireAreas.length; i++) {
+            let ele = requireAreas[i];
+            for (let c of ele.classList) {
+                if (c.length > requiresPrefix.length && c.startsWith(requiresPrefix)) {
+                    let requireId = c.substring(requiresPrefix.length);
+
+                    let requriedElement = document.getElementById(requireId);
+                    let obj = {
+                        listener: (e) => {
+                            obj.checkEnabled(obj);
+                        },
+                        checkEnabled: () => {
+                            let enabled = requriedElement.checked;
+                            let eleToCheck = requriedElement;
+                            while (eleToCheck) {
+                                if (enabled) {
+                                    break;
+                                }
+                                if (eleToCheck.classList.contains('disabled')) {
+                                    enabled = true;
+                                }
+                                eleToCheck = eleToCheck.parentElement;
+                            }
+
+                            let was = ele.classList.contains('disabled');
+                            if (was !== !enabled) {
+                                toggleClass(ele, 'disabled', !enabled);
+                                return true;
+                            }
+                            return false;
+                        },
+                    };
+                    requireObjs.push(obj);
+                    requriedElement.addEventListener('input', obj.listener);
+
+                    break;
+                }
+            }
+        }
+    }
+
+
+
+
     await settingsLoaded;
-    bindElementIdsToSettings(settings);
+    let firstLoad = true;
+    let handleLoad = () => {
+        bindElementIdsToSettings(settings, firstLoad);
+        checkRequired();
+
+        firstLoad = false;
+    };
+    handleLoad();
+
 
     handleSettingChanges = (changes, areaName) => {
         if (changes.treeStyleTabInternalId) {
@@ -350,7 +419,7 @@ async function initiatePage() {
         await browser.storage.local.clear();
 
         // Reload settings:
-        bindElementIdsToSettings(settings, false);
+        handleLoad();
     });
 }
 initiatePage();

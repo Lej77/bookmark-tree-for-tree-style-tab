@@ -44,6 +44,9 @@
     "options_createTempTabWhenRestoring": {
         "message": "Create a temporary tab to focus on when restoring tabs."
     },
+    "options_gruopUnderTempTabWhenRestoring": {
+        "message": "Group tabs under the temporary tab when restoring tabs."
+    },
     "options_ensureOneParentWhenCreatingTabs": {
         "message": "Ensure that the created tabs have a common parent."
     },

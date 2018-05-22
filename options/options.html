@@ -85,11 +85,18 @@
         <input id="detachIncorrectParentsAfter" type="number" min="-1">
         <span class="message_options_Milliseconds"></span>
       </p>
-      <label>
-        <input id="createTempTabWhenRestoring" type="checkbox">
-        <text class="message_options_createTempTabWhenRestoring"></text>
-      </label>
-      <br />
+      <div class="area">
+        <label>
+          <input id="createTempTabWhenRestoring" type="checkbox">
+          <text class="message_options_createTempTabWhenRestoring"></text>
+        </label>
+        <br />
+        <br />
+        <label class="requires_createTempTabWhenRestoring">
+          <input id="gruopUnderTempTabWhenRestoring" type="checkbox">
+          <text class="message_options_gruopUnderTempTabWhenRestoring"></text>
+        </label>
+      </div>
       <br />
       <label>
         <input id="ensureOneParentWhenCreatingTabs" type="checkbox">

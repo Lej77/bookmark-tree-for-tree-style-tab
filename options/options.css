@@ -37,6 +37,9 @@ input[type="text"] {
 }
 
 
+.disabled {
+    opacity: 0.6;
+}
 
 
 

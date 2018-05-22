@@ -100,6 +100,9 @@ function safeDelay(timeInMilliseconds) {
 let trackedDelays = [];
 
 async function trackedDelay(timeInMilliseconds) {
+  if (timeInMilliseconds < 0) {
+    return;
+  }
   if (timeInMilliseconds < 50) {
     return delay(timeInMilliseconds);
   }
@@ -412,13 +415,17 @@ function getDefaultSettings() {
     customTSTContextMenuLabel: '',
     customMTHContextMenuLabel: '',
 
-    bookmarkSuffix: browser.i18n.getMessage('bookmark_DefaultTSTSuffix'),
 
     delayAfterTabOpen: 200,
     setParentAfterTabCreate: false,
     detachIncorrectParentsAfter: 1500,
+
     createTempTabWhenRestoring: true,
+    gruopUnderTempTabWhenRestoring: true,
     ensureOneParentWhenCreatingTabs: true,
+
+
+    bookmarkSuffix: browser.i18n.getMessage('bookmark_DefaultTSTSuffix'),
 
     allowSeparatorsWhenRestoringTree: true,
     bookmarkTreeWithSeparators: true,
