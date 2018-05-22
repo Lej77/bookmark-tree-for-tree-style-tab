@@ -35,6 +35,9 @@
     "options_delayAfterTabOpen": {
         "message": "Delay after opening a tab (-1 to disable):"
     },
+    "options_delayBeforeNavigating": {
+        "message": "Delay after opening a tab before navigating to its URL (-1 to disable):"
+    },
     "options_Milliseconds": {
         "message": "milliseconds."
     },
@@ -43,6 +46,9 @@
     },
     "options_createTempTabWhenRestoring": {
         "message": "Create a temporary tab to focus on when restoring tabs."
+    },
+    "options_tempTabURL": {
+        "message": "URL for the temporary tab (empty to use new tab):"
     },
     "options_gruopUnderTempTabWhenRestoring": {
         "message": "Group tabs under the temporary tab when restoring tabs."

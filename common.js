@@ -164,77 +164,91 @@ async function getTabsFromTST(windowId, flatArray = false) {
 }
 
 
+let gInternalTSTCaching = null;
 /**
  * Use Group tabs to get Tree Style Tab's internal id.
  * 
  * @param {boolean} [allowCached=true] Get id from cache if available.
  * @returns {string} Tree Style Tab's internal id.
  */
-async function getInternalTSTId(allowCached = true) {
+async function getInternalTSTId(allowCached = true) {  
+  while (gInternalTSTCaching) {
+    let waiting = gInternalTSTCaching;
+    await waiting;
+    if (waiting === gInternalTSTCaching) {
+      gInternalTSTCaching = null;
+    }
+  }
+  
   if (allowCached && settings.treeStyleTabInternalId) {
     return settings.treeStyleTabInternalId;
   }
 
-  let internalId;
+  gInternalTSTCaching = (async () => {
 
-  // #region Search for open Group Tab
+    let internalId;
 
-  let allWindows = await browser.windows.getAll();
+    // #region Search for open Group Tab
 
-  for (let window of allWindows) {
-    if (internalId) {
-      break;
-    }
-    try {
-      let tstTabs = await getTabsFromTST(window.id, true);
-      for (let tstTab of tstTabs) {
-        if (tstTab.states.includes('group-tab')) {
-          let groupURLInfo = getGroupTabInfo(tstTab.url);
-          if (groupURLInfo) {
-            internalId = groupURLInfo.internalId;
-            break;
+    let allWindows = await browser.windows.getAll();
+
+    for (let window of allWindows) {
+      if (internalId) {
+        break;
+      }
+      try {
+        let tstTabs = await getTabsFromTST(window.id, true);
+        for (let tstTab of tstTabs) {
+          if (tstTab.states.includes('group-tab')) {
+            let groupURLInfo = getGroupTabInfo(tstTab.url);
+            if (groupURLInfo) {
+              internalId = groupURLInfo.internalId;
+              break;
+            }
           }
         }
-      }
-    } catch (error) { }
-  }
-
-  // #endregion Search for open Group Tab
-
-
-  // #region Open a new Group Tab
-
-  if (!internalId) {
-    let tempTab;
-    try {
-      tempTab = await browser.tabs.create({ active: false });
-      try {
-        let groupTab = await browser.runtime.sendMessage(kTST_ID, {
-          type: 'group-tabs',
-          tabs: [tempTab.id]
-        });
-        let groupURLInfo = getGroupTabInfo(groupTab.url);
-        if (groupURLInfo) {
-          internalId = groupURLInfo.internalId;
-        }
       } catch (error) { }
-    } finally {
-      if (tempTab) {
-        await browser.tabs.remove(tempTab.id);
+    }
+
+    // #endregion Search for open Group Tab
+
+
+    // #region Open a new Group Tab
+
+    if (!internalId) {
+      let tempTab;
+      try {
+        tempTab = await browser.tabs.create({ active: false });
+        try {
+          let groupTab = await browser.runtime.sendMessage(kTST_ID, {
+            type: 'group-tabs',
+            tabs: [tempTab.id]
+          });
+          let groupURLInfo = getGroupTabInfo(groupTab.url);
+          if (groupURLInfo) {
+            internalId = groupURLInfo.internalId;
+          }
+        } catch (error) { }
+      } finally {
+        if (tempTab) {
+          await browser.tabs.remove(tempTab.id);
+        }
       }
     }
-  }
 
-  // #endregion Open a new Group Tab
+    // #endregion Open a new Group Tab
 
 
-  if (!internalId) {
-    return null;
-  }
-  browser.storage.local.set({ treeStyleTabInternalId: internalId });
-  settings.treeStyleTabInternalId = internalId;
+    if (!internalId) {
+      return null;
+    }
+    browser.storage.local.set({ treeStyleTabInternalId: internalId });
+    settings.treeStyleTabInternalId = internalId;
 
-  return internalId;
+    return internalId;
+  })();
+
+  return gInternalTSTCaching;
 }
 
 
@@ -417,10 +431,12 @@ function getDefaultSettings() {
 
 
     delayAfterTabOpen: 200,
+    delayBeforeNavigating: 0,
     setParentAfterTabCreate: false,
     detachIncorrectParentsAfter: 1500,
 
     createTempTabWhenRestoring: true,
+    tempTabURL: '',
     gruopUnderTempTabWhenRestoring: true,
     ensureOneParentWhenCreatingTabs: true,
 

@@ -74,6 +74,11 @@
         <input id="delayAfterTabOpen" type="number" min="-1">
         <span class="message_options_Milliseconds"></span>
       </p>
+      <p>
+        <span class="message_options_delayBeforeNavigating"></span>
+        <input id="delayBeforeNavigating" type="number" min="-1">
+        <span class="message_options_Milliseconds"></span>
+      </p>
       <label>
         <input id="setParentAfterTabCreate" type="checkbox">
         <text class="message_options_setParentAfterTabCreate"></text>
@@ -92,10 +97,18 @@
         </label>
         <br />
         <br />
-        <label class="requires_createTempTabWhenRestoring">
-          <input id="gruopUnderTempTabWhenRestoring" type="checkbox">
-          <text class="message_options_gruopUnderTempTabWhenRestoring"></text>
-        </label>
+        <div class="requires_createTempTabWhenRestoring">
+          <label>
+            <input id="gruopUnderTempTabWhenRestoring" type="checkbox">
+            <text class="message_options_gruopUnderTempTabWhenRestoring"></text>
+          </label>
+          <br />
+          <br />
+          <div>
+            <label class="message_options_tempTabURL"></label>
+            <input id="tempTabURL" type="text">
+          </div>
+        </div>
       </div>
       <br />
       <label>
