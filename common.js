@@ -415,7 +415,7 @@ function getDefaultSettings() {
     bookmarkSuffix: browser.i18n.getMessage('bookmark_DefaultTSTSuffix'),
 
     delayAfterTabOpen: 200,
-    setParentAfterTabCreate: true,
+    setParentAfterTabCreate: false,
     detachIncorrectParentsAfter: 1500,
     createTempTabWhenRestoring: true,
     ensureOneParentWhenCreatingTabs: true,

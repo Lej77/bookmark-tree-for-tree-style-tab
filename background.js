@@ -3,15 +3,23 @@
 
 class TreeInfoNode {
 
-  constructor({ title, url, children = [], parent = null } = {}) {
+  constructor({ title, url, children = [], parent = null, instances = {} } = {}) {
     Object.assign(this, {
-      title: title || '',
-      url: url || '',
-      children: [],
-      parent: null,
+      _title: title || '',
+      _url: url || '',
+      _children: [],
+      _parent: null,
+      _instances: {},
     });
+
+    this.addInstances(instances);
+
     this.addChildren(children);
+    this.parent = parent;
   }
+
+
+  // #region Node Relationships
 
   addChildren(nodes) {
     if (!nodes) {
@@ -19,19 +27,24 @@ class TreeInfoNode {
     }
     if (!Array.isArray(nodes)) {
       nodes = [nodes];
+    } else if (nodes.length > 0) {
+      nodes = nodes.slice();
+    } else {
+      return;
     }
-    for (let node of nodes.slice()) {
+
+    for (let node of nodes) {
       if (node === this) {
         continue;
       }
-      if (!this.children.includes(node)) {
-        this.children.push(node);
+      if (!this._children.includes(node)) {
+        this._children.push(node);
       }
-      if (node.parent !== this) {
-        if (node.parent) {
-          node.parent.removeChildren(node);
+      if (node._parent !== this) {
+        if (node._parent) {
+          node._parent.removeChildren(node);
         }
-        node.parent = this;
+        node._parent = this;
       }
     }
   }
@@ -42,20 +55,333 @@ class TreeInfoNode {
     }
     if (!Array.isArray(nodes)) {
       nodes = [nodes];
+    } else if (nodes.length > 0) {
+      nodes = nodes.slice();
+    } else {
+      return;
     }
-    for (let node of nodes.slice()) {
+
+    for (let node of nodes) {
       let index;
       do {
-        index = this.children.indexOf(node);
+        index = this._children.indexOf(node);
         if (index >= 0) {
-          this.children.splice(index, 1);
+          this._children.splice(index, 1);
         }
       } while (index >= 0);
-      if (node.parent === this) {
-        node.parent = null;
+      if (node._parent === this) {
+        node._parent = null;
       }
     }
   }
+
+
+  insertChildren(index, nodes) {
+    if (!nodes) {
+      return;
+    }
+    if (!Array.isArray(nodes)) {
+      nodes = [nodes];
+    } else if (nodes.length > 0) {
+      nodes = nodes.slice();
+    } else {
+      return;
+    }
+
+    this.addChildren(nodes);
+    for (let iii = 0; iii < nodes.length; iii++) {
+      let node = nodes[iii];
+      let first = true;
+      while (true) {
+        let index = this._children.indexOf(node);
+        if (index >= 0) {
+          this._children.splice(index, 1);
+        } else {
+          break;
+        }
+        first = false;
+      }
+      if (first) {
+        nodes.splice(iii, 1);
+        iii--;
+      }
+    }
+    if (index < 0) {
+      index = 0;
+    }
+    if (index >= this._children.length) {
+      this._children.push(...nodes);
+    } else {
+      this._children.splice(index, 0, ...nodes);
+    }
+  }
+
+
+  get children() {
+    return this._children.slice();
+  }
+
+  get parent() {
+    return this._parent;
+  }
+  set parent(value) {
+    if (value === this.parent) {
+      return;
+    }
+    if (value) {
+      value.addChildren(this);
+    } else if (this.parent) {
+      this.parent.removeChildren(this);
+    } else {
+      this._parent = null;
+    }
+  }
+
+  // #endregion Node Relationships
+
+
+  // #region Instances
+
+  addInstance(type, id, instance) {
+    let idInstanceLookup = {};
+    idInstanceLookup[id] = instance;
+    let obj = {};
+    obj[type] = idInstanceLookup;
+    this.addInstances(obj);
+  }
+
+  removeInstance(type, id) {
+    let instances = {};
+    instances[type] = [id];
+    this.removeInstances(instances);
+  }
+
+
+  addInstances(instances) {
+    if (!instances) {
+      return;
+    }
+    let allowedKeys = Object.values(TreeInfoNode.instanceTypes);
+    for (let [key, value] of Object.entries(instances)) {
+      if (!value || !allowedKeys.includes(key)) {
+        continue;
+      }
+      if (!this._instances[key]) {
+        this._instances[key] = {};
+      }
+      Object.assign(this._instances[key], value);
+    }
+  }
+
+  removeInstances(instances) {
+    if (!instances) {
+      return;
+    }
+    for (let [key, value] of Object.entries(instances)) {
+      if (!value || !this._instances[key]) {
+        continue;
+      }
+      let instanceTypeIdValueLookup = this._instances[key];
+      let idsToRemove = Array.isArray(value) ? value : Object.keys(value);
+
+      for (let id of idsToRemove) {
+        delete instanceTypeIdValueLookup[id];
+      }
+
+      if (Object.keys(instanceTypeIdValueLookup).length === 0) {
+        delete this._instances[key];
+      }
+    }
+  }
+
+  get instances() {
+    return this._instances;
+  }
+
+
+  checkInstanceId(idType, id) {
+    let typeLookup = this._instances[idType];
+    return Boolean(typeLookup && typeLookup[id]);
+  }
+
+  getNodeById(idType, id) {
+    let nodes = this.children.slice();
+    while (nodes.length > 0) {
+      let node = nodes.shift();
+      if (node.checkInstanceId(idType, id)) {
+        return node;
+      }
+      nodes.push(...node.children);
+    }
+    return null;
+  }
+
+  // #endregion Instances
+
+
+
+
+  get title() {
+    return this._title;
+  }
+  set title(value) {
+    this._title = value;
+  }
+
+  get url() {
+    return this._url;
+  }
+  set url(value) {
+    this._url = value;
+  }
+
+
+
+  // #region Node manipulations
+
+  prune({ parentNodes = [], maxTreeDepth = false, removeNodes = [] } = {}) {
+
+    let hasMaxTreeDepth = (maxTreeDepth || maxTreeDepth === 0) && (maxTreeDepth === true || maxTreeDepth >= 0);
+
+    if (!hasMaxTreeDepth && removeNodes.length === 0) {
+      return this;
+    }
+
+    removeNodes = removeNodes.slice();
+    parentNodes = parentNodes.slice();
+
+
+    let parentLookup = new Map();
+
+    let nodesToTest = [this];
+    let allowedNodes = [this];
+
+    while (nodesToTest.length > 0) {
+      let parentNode = nodesToTest.shift();
+      let parents = parentLookup.get(parentNode) || [];
+
+      let removed = false;
+      if (parentNode !== this && removeNodes.includes(parentNode)) {
+        while (true) {
+          let index = allowedNodes.indexOf(parentNode);
+          if (index >= 0) {
+            allowedNodes.splice(index, 1);
+          } else {
+            break;
+          }
+        }
+        if (parentNode.parent) {
+          parentNode.parent.removeChildren(parentNode);
+        }
+        removed = true;
+      }
+
+
+      if (parentNodes.includes(parentNode)) {
+        if (!removed && !allowedNodes.includes(parentNode)) {
+          let possibleParents = parents.slice();
+          while (possibleParents.length > 0) {
+            let possibleParent = possibleParents.pop();
+            if (allowedNodes.includes(possibleParent)) {
+              possibleParent.addChildren(parentNode);
+              break;
+            }
+          }
+          allowedNodes.push(parentNode);
+        }
+        parents = [];
+      }
+
+
+      if (parentNode.children.length === 0) {
+        continue;
+      }
+      nodesToTest.splice(0, 0, ...parentNode.children);
+
+
+      let childParents = parents.slice();
+      childParents.push(parentNode);
+      for (let childNode of parentNode.children) {
+        parentLookup.set(childNode, childParents);
+      }
+
+
+      let skipChildren = hasMaxTreeDepth && (maxTreeDepth === true || parents.length >= maxTreeDepth);
+      if (skipChildren) {
+        parentNode.removeChildren(parentNode.children);
+      } else {
+        allowedNodes.push(...parentNode.children);
+      }
+    }
+
+    return this;
+  }
+
+
+  async convertGroupURL(useLegacyURL, recursive = true) {
+    let groupInfo = getGroupTabInfo(this.url);
+    if (groupInfo) {
+      this.url = (useLegacyURL ?
+        kTST_LegacyGroupURL + groupInfo.urlArguments :
+        getGroupTabURL({ internalId: await getInternalTSTId(), urlArguments: groupInfo.urlArguments })
+      );
+    }
+    if (recursive) {
+      return Promise.all([this.children.map(node => node.convertGroupURL(useLegacyURL, recursive))]);
+    }
+  }
+
+  // #endregion Node manipulations
+
+
+  // #region Node meta info
+
+  getNthContentNode(skipCount = 0) {
+    let nodes = this.children.slice();
+    while (nodes.length > 0) {
+      let node = nodes.shift();
+      if (node.url) {
+        if (skipCount <= 0) {
+          return node;
+        }
+        skipCount--;
+      }
+      nodes.splice(0, 0, ...node.children);
+    }
+    return null;
+  }
+
+
+  get descendants() {
+    let nodes = this.children.slice();
+    for (let iii = 0; iii < nodes.length; iii++) {
+      let node = nodes[iii];
+      nodes.push(...node.children);
+    }
+    return nodes;
+  }
+
+  get rootNode() {
+    let node = this;
+    while (node.parent) {
+      node = node.parent;
+    }
+    return node;
+  }
+
+  get count() {
+    return this.descendants.filter(node => node.url).length + (this.url ? 1 : 0);
+  }
+
+  get firstContentNode() {
+    return this.getNthContentNode(0);
+  }
+
+  get hasContent() {
+    return Boolean(this.firstContentNode);
+  }
+
+  // #endregion Node meta info
 
 
   async openAsTabs({
@@ -239,7 +565,7 @@ class TreeInfoNode {
         focusPreviousTab,
         dontFocusOnNewTabs,
       });
-      tabs.push.apply(tabs, childTabs);
+      tabs.push(...childTabs);
     }
 
     // #endregion Create Child Tabs
@@ -293,7 +619,14 @@ class TreeInfoNode {
     let folderBookmark;
     let bookmarks = [];
     if (!useSeparators) {
-      let folderTitle = this.url ? this.title : (this.descendants.filter(node => node.url)[0] || {}).title || '';
+      let folderTitle = this.title;
+      if (!this.url) {
+        let firstURLNode = this.firstContentNode;
+        if (!firstURLNode) {
+          return null;
+        }
+        folderTitle = firstURLNode.title;
+      }
 
       if (!this.url && this.children.length > 1) {
         folderTitle = browser.i18n.getMessage('bookmark_MultipleTabsTitle', folderTitle);
@@ -348,102 +681,6 @@ class TreeInfoNode {
   }
 
 
-  prune({ parentNodes = [], maxTreeDepth = false } = {}) {
-
-    let hasMaxTreeDepth = (maxTreeDepth || maxTreeDepth === 0) && (maxTreeDepth === true || maxTreeDepth >= 0);
-
-    if (!hasMaxTreeDepth) {
-      return this;
-    }
-
-
-    let parentLookup = new Map();
-
-    let nodesToTest = [this];
-    let allowedNodes = [this];
-
-    while (nodesToTest.length > 0) {
-      let parentNode = nodesToTest.shift();
-      let parents = parentLookup.get(parentNode) || [];
-
-
-      if (parentNodes.includes(parentNode)) {
-        if (!allowedNodes.includes(parentNode)) {
-          let possibleParents = parents.slice();
-          while (possibleParents.length > 0) {
-            let possibleParent = possibleParents.pop();
-            if (allowedNodes.includes(possibleParent)) {
-              possibleParent.addChildren(parentNode);
-              break;
-            }
-          }
-          allowedNodes.push(parentNode);
-        }
-        parents = [];
-      }
-
-
-      if (parentNode.children.length === 0) {
-        continue;
-      }
-      nodesToTest.splice(0, 0, ...parentNode.children);
-
-
-      let childParents = parents.slice();
-      childParents.push(parentNode);
-      for (let childNode of parentNode.children) {
-        parentLookup.set(childNode, childParents);
-      }
-
-
-      let skipChildren = hasMaxTreeDepth && (maxTreeDepth === true || parents.length >= maxTreeDepth);
-      if (skipChildren) {
-        parentNode.removeChildren(parentNode.children);
-      } else {
-        allowedNodes.push.apply(allowedNodes, parentNode.children);
-      }
-    }
-
-    return this;
-  }
-
-
-  async convertGroupURL(useLegacyURL, recursive = true) {
-    let groupInfo = getGroupTabInfo(this.url);
-    if (groupInfo) {
-      this.url = (useLegacyURL ?
-        kTST_LegacyGroupURL + groupInfo.urlArguments :
-        getGroupTabURL({ internalId: await getInternalTSTId(), urlArguments: groupInfo.urlArguments })
-      );
-    }
-    if (recursive) {
-      return Promise.all([this.children.map(node => node.convertGroupURL(useLegacyURL, recursive))]);
-    }
-  }
-
-
-  get descendants() {
-    let nodes = this.children.slice();
-    for (let iii = 0; iii < nodes.length; iii++) {
-      let node = nodes[iii];
-      nodes.push.apply(nodes, node.children);
-    }
-    return nodes;
-  }
-
-  get rootNode() {
-    let node = this;
-    while (node.parent) {
-      node = node.parent;
-    }
-    return node;
-  }
-
-  get count() {
-    return this.descendants.filter(node => node.url).length + (this.url ? 1 : 0);
-  }
-
-
   // #region Static
 
   static async createFromTabs(parentTabs, { isTSTTab = false } = {}) {
@@ -477,8 +714,10 @@ class TreeInfoNode {
         tabLookup[tab.id] = tab;
       }
       if (!nodeLookup[tab.id]) {
-        nodeLookup[tab.id] = new TreeInfoNode({ title: tab.title, url: tab.url });
-        tabs.push.apply(tabs, tab.children);
+        let node = new TreeInfoNode({ title: tab.title, url: tab.url });
+        node.addInstance(TreeInfoNode.instanceTypes.tab, tab.id, tab);
+        nodeLookup[tab.id] = node;
+        tabs.push(...tab.children);
       }
     }
 
@@ -530,19 +769,21 @@ class TreeInfoNode {
     }
 
 
+    let createdNode = null;
     switch (rootBookmark.type) {
       case 'bookmark': {
-        return new TreeInfoNode({ title: rootBookmark.title, url: rootBookmark.url });
+        createdNode = new TreeInfoNode({ title: rootBookmark.title, url: rootBookmark.url });
       } break;
 
       case 'folder': {
         let first = false;
         let isParent = false;
-        let separatorCount = 0;
+        let separators = [];
+        let startSeparator = null;
 
-        let rootNode = new TreeInfoNode({ title: rootBookmark.title });
+        createdNode = new TreeInfoNode({ title: rootBookmark.title });
         let parentNodes = [];
-        let parentNode = rootNode;
+        let parentNode = createdNode;
 
         for (let bookmark of rootBookmark.children) {
           if (bookmark.type === 'separator') {
@@ -550,20 +791,26 @@ class TreeInfoNode {
               isParent = true;
             }
             if (supportSeparators) {
-              separatorCount++;
+              separators.push(bookmark);
             }
             continue;
           }
-          if (separatorCount > 0) {
-            while (separatorCount >= 2 && parentNodes.length > 0) {
+          if (separators.length > 0) {
+            while (separators.length >= 2 && parentNodes.length > 0) {
+              let endSeparators = [separators.shift(), separators.shift()];
+              if (parentNode) {
+                for (let separator of endSeparators) {
+                  parentNode.addInstance(TreeInfoNode.instanceTypes.bookmark, separator.id, separator);
+                }
+              }
               parentNode = parentNodes.pop();
-              separatorCount -= 2;
             }
-            if (separatorCount % 2 === 1 && (parentNodes.length === 0 || parentNodes[parentNodes.length - 1] !== parentNode)) {
+            if (separators.length % 2 === 1 && (parentNodes.length === 0 || parentNodes[parentNodes.length - 1] !== parentNode)) {
               parentNodes.push(parentNode);
               isParent = true;
+              startSeparator = separators[0];
             }
-            separatorCount = 0;
+            separators = [];
           }
 
           let parsedNode = await TreeInfoNode.parseFromBookmarks({ rootBookmark: bookmark, supportSeparators });
@@ -573,6 +820,10 @@ class TreeInfoNode {
               parentNode.addChildren(parsedNode);
               parentNode = parsedNode;
               isParent = false;
+              if (startSeparator) {
+                parentNode.addInstance(TreeInfoNode.instanceTypes.bookmark, startSeparator.id, startSeparator);
+                startSeparator = null;
+              }
             } else {
               if (!parsedNode.url) {
                 parentNode.addChildren(parsedNode.children);
@@ -586,19 +837,25 @@ class TreeInfoNode {
             first = false;
           }
         }
-        return rootNode;
       } break;
 
       case 'separator': {
 
       } break;
     }
-    return null;
+    if (createdNode) {
+      createdNode.addInstance(TreeInfoNode.instanceTypes.bookmark, rootBookmark.id, rootBookmark);
+    }
+    return createdNode;
   }
 
   // #endregion Static
 
 }
+TreeInfoNode.instanceTypes = Object.freeze({
+  bookmark: 'bookmark',
+  tab: 'tab',
+});
 
 /**
  * 
@@ -684,7 +941,13 @@ async function restoreTree({
   ensureOneParent = false
 } = {}) {
 
-  let treeNodes = await TreeInfoNode.parseFromBookmarks({ bookmarkId, supportSeparators });
+  let clickedBookmark = (await browser.bookmarks.getSubTree(bookmarkId))[0];
+  let rootBookmark = clickedBookmark;
+  if (rootBookmark.type !== 'folder') {
+    rootBookmark = (await browser.bookmarks.getSubTree(rootBookmark.parentId))[0];
+  }
+
+  let treeNodes = await TreeInfoNode.parseFromBookmarks({ rootBookmark, supportSeparators });
   if (!treeNodes) {
     return;
   }
@@ -696,6 +959,12 @@ async function restoreTree({
   }
 
   let rootNode = treeNodes[0].rootNode;
+
+  if (clickedBookmark !== rootBookmark) {
+    let clickedNode = rootNode.getNodeById(TreeInfoNode.instanceTypes.bookmark, clickedBookmark.id);
+    rootNode = clickedNode.children.length > 0 || !clickedNode.parent ? clickedNode : clickedNode.parent;
+    rootNode.parent = null;
+  }
 
   if (ensureOneParent && !rootNode.url) {
     rootNode.url = getGroupTabURL({ name: rootNode.title });
@@ -713,7 +982,7 @@ async function restoreTree({
         message: browser.i18n.getMessage('notifications_RestoreTree_Confirm_Message', count),
       });
       if (!ok) {
-        return tabs;
+        return [];
       }
     }
   }
