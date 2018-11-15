@@ -12,6 +12,12 @@
     <div class="sectionArea">
       <header class="message_options_section_ContextMenuActive"></header>
       <label>
+        <input id="hasTabContextMenu" type="checkbox">
+        <text class="message_options_hasTabContextMenu"></text>
+      </label>
+      <br />
+      <br />
+      <label>
         <input id="hasTSTContextMenu" type="checkbox">
         <text class="message_options_hasTSTContextMenu"></text>
       </label>
@@ -39,6 +45,11 @@
       <div>
         <label class="message_options_customRestoreTreeContextMenuLabel"></label>
         <input id="customRestoreTreeContextMenuLabel" type="text">
+      </div>
+      <br />
+      <div>
+        <label class="message_options_customBookmarkTreeContextMenuLabel"></label>
+        <input id="customBookmarkTreeContextMenuLabel" type="text">
       </div>
     </div>
     <br />
@@ -140,6 +151,10 @@
       <div>
         <label class="message_options_treeStyleTabInternalId"></label>
         <input id="treeStyleTabInternalId" type="text">
+      </div>
+      <div class="internal-tst-id-buttons">
+        <button id="TST_InternalId_ResetButton" class="message_options_TST_InternalId_Reset"></button>
+        <button id="TST_InternalId_UpdateButton" class="message_options_TST_InternalId_ForceUpdate"></button>
       </div>
     </div>
     <br />

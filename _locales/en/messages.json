@@ -14,11 +14,14 @@
     "options_section_TreeStyleTabId": {
         "message": "Internal id for Tree Style Tab"
     },
+    "options_hasTabContextMenu": {
+        "message": "Show context menu item for Firefox Tabs."
+    },
     "options_hasTSTContextMenu": {
-        "message": "Show context menu item in Tree Style Tab's Sidebar."
+        "message": "Show context menu item in Tree Style Tab's Sidebar. (Use Firefox Tabs option in Firefox 64 and later.)"
     },
     "options_hasMTHContextMenu": {
-        "message": "Show context menu item for Multiple Tab Handler's selection."
+        "message": "Show context menu item for Multiple Tab Handler's selection. (Use Firefox Tabs option in Firefox 64 and later.)"
     },
     "options_customTSTContextMenuLabel": {
         "message": "Custom label for Tree Style Tab's context menu item (place a \"&\" symbol before the letter that should be used as the keyboard shortcut) (empty to use default label):"
@@ -27,7 +30,10 @@
         "message": "Custom label for Multiple Tab Handler's context menu item (place a \"&\" symbol before the letter that should be used as the keyboard shortcut) (empty to use default label):"
     },
     "options_customRestoreTreeContextMenuLabel": {
-        "message": "Custom label for Restore Tree context menu item (empty to use default label):"
+        "message": "Custom label for Restore Tree context menu item (place a \"&\" symbol before the letter that should be used as the keyboard shortcut) (empty to use default label):"
+    },
+    "options_customBookmarkTreeContextMenuLabel": {
+        "message": "Custom label for Bookmark Tree context menu item on Firefox Tabs (place a \"&\" symbol before the letter that should be used as the keyboard shortcut) (empty to use default label):"
     },
     "options_bookmarkSuffix": {
         "message": "Text to append to title of bookmark folders saved with Tree Style Tab data:"
@@ -80,17 +86,26 @@
     "options_warnWhenRestoringMoreThan": {
         "message": "Warn when attempting to restore more than this many bookmarks (-1 to disable):"
     },
+    "options_TST_InternalId_Reset": {
+        "message": "Reset"
+    },
+    "options_TST_InternalId_ForceUpdate": {
+        "message": "Force Update"
+    },
     "options_resetSettings": {
         "message": "Reset Settings"
     },
     "options_resetSettings_Prompt": {
         "message": "Do you want to reset all settings to default values?"
     },
-    "contextMenu_BookmarkTree": {
+    "contextMenu_TreeStyleTabAndMTH": {
         "message": "Bookmark Tr&ee Data"
     },
     "contextMenu_RestoreTree": {
         "message": "Restore Tree"
+    },
+    "contextMenu_BookmarkTree": {
+        "message": "Bookmark Tree Data"
     },
     "bookmark_MultipleTabsTitle": {
         "message": "$firstTitle$ and more",

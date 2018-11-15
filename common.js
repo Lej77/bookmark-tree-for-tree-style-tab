@@ -169,9 +169,11 @@ let gInternalTSTCaching = null;
  * Use Group tabs to get Tree Style Tab's internal id.
  * 
  * @param {boolean} [allowCached=true] Get id from cache if available.
+ * @param {boolean} [searchOpenTabs=true] If id is not cached then search open tabs for a TST tab that contains the internal id in its URL.
+ * @param {boolean} [openGroupTab=true] If id is not cached then open a TST group tab that contains the internal id in its URL.
  * @returns {string} Tree Style Tab's internal id.
  */
-async function getInternalTSTId(allowCached = true) {  
+async function getInternalTSTId({ allowCached = true, searchOpenTabs = true, openGroupTab = true } = {}) {
   while (gInternalTSTCaching) {
     let waiting = gInternalTSTCaching;
     await waiting;
@@ -179,7 +181,7 @@ async function getInternalTSTId(allowCached = true) {
       gInternalTSTCaching = null;
     }
   }
-  
+
   if (allowCached && settings.treeStyleTabInternalId) {
     return settings.treeStyleTabInternalId;
   }
@@ -190,24 +192,26 @@ async function getInternalTSTId(allowCached = true) {
 
     // #region Search for open Group Tab
 
-    let allWindows = await browser.windows.getAll();
+    if (searchOpenTabs) {
+      let allWindows = await browser.windows.getAll();
 
-    for (let window of allWindows) {
-      if (internalId) {
-        break;
-      }
-      try {
-        let tstTabs = await getTabsFromTST(window.id, true);
-        for (let tstTab of tstTabs) {
-          if (tstTab.states.includes('group-tab')) {
-            let groupURLInfo = getGroupTabInfo(tstTab.url);
-            if (groupURLInfo) {
-              internalId = groupURLInfo.internalId;
-              break;
+      for (let window of allWindows) {
+        if (internalId) {
+          break;
+        }
+        try {
+          let tstTabs = await getTabsFromTST(window.id, true);
+          for (let tstTab of tstTabs) {
+            if (tstTab.states.includes('group-tab')) {
+              let groupURLInfo = getGroupTabInfo(tstTab.url);
+              if (groupURLInfo) {
+                internalId = groupURLInfo.internalId;
+                break;
+              }
             }
           }
-        }
-      } catch (error) { }
+        } catch (error) { }
+      }
     }
 
     // #endregion Search for open Group Tab
@@ -215,7 +219,7 @@ async function getInternalTSTId(allowCached = true) {
 
     // #region Open a new Group Tab
 
-    if (!internalId) {
+    if (openGroupTab && !internalId) {
       let tempTab;
       try {
         tempTab = await browser.tabs.create({ active: false });
@@ -422,9 +426,11 @@ browser.notifications.onClosed.addListener((notificationId) => {
 
 function getDefaultSettings() {
   return {
+    hasTabContextMenu: true,
     hasTSTContextMenu: true,
     hasMTHContextMenu: true,
 
+    customBookmarkTreeContextMenuLabel: '',
     customRestoreTreeContextMenuLabel: '',
     customTSTContextMenuLabel: '',
     customMTHContextMenuLabel: '',

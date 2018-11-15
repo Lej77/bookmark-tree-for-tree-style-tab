@@ -201,17 +201,30 @@ function createCollapsableArea(animationInfo = {}) {
     contentWrapper.appendChild(contentArea);
 
 
+    // Make header behave as a button:
+    headerArea.setAttribute('tabindex', 0);
+    headerArea.setAttribute('role', 'button');
     headerArea.addEventListener('click', (e) => {
         let ele = e.target;
-        while (ele) {
-            if (ele === headerArea) {
-                break;
-            }
-            if (ele.classList.contains('preventOpen')) {
-                return;
-            }
-            ele = ele.parentElement;
+        while (true) {
+          if (!ele || ele.classList.contains('preventOpen')) {
+            return;
+          }
+          if (ele === headerArea) {
+            break;
+          }
+          ele = ele.parentElement;
         }
+        setCollapsed(!isCollapsed);
+    });
+    headerArea.addEventListener('keydown', (e) => {
+        if (e.target !== headerArea)
+            return;
+
+        // 13 = Return, 32 = Space
+        if (![13, 32].includes(e.keyCode))
+            return;
+
         setCollapsed(!isCollapsed);
     });
 
@@ -420,6 +433,25 @@ async function initiatePage() {
 
         // Reload settings:
         handleLoad();
+    });
+
+    document.getElementById('TST_InternalId_ResetButton').addEventListener('click', (e) => {
+        browser.storage.local.remove('treeStyleTabInternalId');
+    });
+    document.getElementById('TST_InternalId_UpdateButton').addEventListener('click', (e) => {
+        let fromGroupTab = getInternalTSTId(
+            {
+                allowCached: false,
+                searchOpenTabs: false,
+                openGroupTab: true,
+            });
+        if (!fromGroupTab) {
+            getInternalTSTId({
+                allowCached: false,
+                searchOpenTabs: true,
+                openGroupTab: false,
+            });
+        }
     });
 }
 initiatePage();

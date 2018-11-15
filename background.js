@@ -327,7 +327,7 @@ class TreeInfoNode {
       );
     }
     if (recursive) {
-      return Promise.all([this.children.map(node => node.convertGroupURL(useLegacyURL, recursive))]);
+      return Promise.all(this.children.map(node => node.convertGroupURL(useLegacyURL, recursive)));
     }
   }
 
@@ -1102,7 +1102,7 @@ async function registerToTST() {
 
     success = await createTSTContextMenuItem({
       id: 'bookmark-tree',
-      title: settings.customTSTContextMenuLabel || browser.i18n.getMessage('contextMenu_BookmarkTree'),
+      title: settings.customTSTContextMenuLabel || browser.i18n.getMessage('contextMenu_TreeStyleTabAndMTH'),
     });
   } catch (error) { return false; }
 
@@ -1164,7 +1164,7 @@ async function registerToMTH() {
       return true;
     }
 
-    success = await createMTHContextMenuItem('mth-bookmark-tree', settings.customMTHContextMenuLabel || browser.i18n.getMessage('contextMenu_BookmarkTree'));
+    success = await createMTHContextMenuItem('mth-bookmark-tree', settings.customMTHContextMenuLabel || browser.i18n.getMessage('contextMenu_TreeStyleTabAndMTH'));
   } catch (error) { return false; }
 
   return success;
@@ -1223,14 +1223,16 @@ async function updateContextMenu() {
   try {
     await browser.contextMenus.removeAll();
 
-    let defaultValues = {
-      contexts: ['bookmark'],
-    };
+    let defaultValues = {};
 
     for (let contextMenuItem of [
-      { id: 'RestoreTree', title: settings.customRestoreTreeContextMenuLabel },
+      { id: 'RestoreTree', title: settings.customRestoreTreeContextMenuLabel, contexts: ['bookmark'] },
+      { id: 'BookmarkTree', title: settings.customBookmarkTreeContextMenuLabel, contexts: ['tab'], enabled: settings.hasTabContextMenu },
     ]) {
-      let { id, title, contexts, isDefaults = false } = typeof contextMenuItem === 'string' ? { id: contextMenuItem } : contextMenuItem;
+      let { id, title, contexts, enabled = true, isDefaults = false } = typeof contextMenuItem === 'string' ? { id: contextMenuItem } : contextMenuItem;
+      if (!enabled) {
+        continue;
+      }
       if (isDefaults) {
         Object.assign(defaultValues, contextMenuItem);
         return;
@@ -1261,6 +1263,18 @@ async function updateContextMenu() {
 
 
 settingsLoaded.finally(async () => {
+
+  // #region Browser Version
+
+  let browserInfo = {};
+  let majorBrowserVersion = 57;
+  try {
+    browserInfo = await browser.runtime.getBrowserInfo();
+    majorBrowserVersion = browserInfo.version.split('.')[0];
+  } catch (error) { }
+
+  // #endregion Browser Version
+
 
   // #region Settings
 
@@ -1305,7 +1319,11 @@ settingsLoaded.finally(async () => {
       registerToMTH();
     }
 
-    if (changes.customRestoreTreeContextMenuLabel) {
+    if (
+      changes.customRestoreTreeContextMenuLabel ||
+      changes.customBookmarkTreeContextMenuLabel ||
+      changes.hasTabContextMenu
+    ) {
       updateContextMenu();
     }
 
@@ -1321,6 +1339,97 @@ settingsLoaded.finally(async () => {
   // #endregion Settings
 
 
+  // #region Bookmark Selected Tabs
+
+  /**
+   * Bookmark the selected tabs in a specific window. If no window id is provided the current window will be used.
+   * 
+   * This will attempt to use the new multiselect WebExtensions API that is supported in Firefox 64 and later. 
+   * If that fails it will attempt to check if any tabs are selected in Multiple Tab Handler.
+   * 
+   * If multiple tabs aren't selected it will bookmark the provided tab or the active tab in the provided windoiw.
+   * 
+   * 
+   * @returns {Array|Undefined} Saved Bookmarks
+   */
+  async function bookmarkSelectedTabs({ windowId = null, tab = null } = {}) {
+    // Check Function Args:
+    if (tab !== null) {
+      windowId = tab.windowId;
+    }
+
+    // Configure Tabs Query:
+    let details = { highlighted: true };
+    if (windowId !== null) {
+      details.windowId = windowId;
+    } else {
+      details.currentWindow = true;
+    }
+
+    // Attempt Tabs Query:
+    let tabs = [];
+    try {
+      // Attempt to get multiselected tabs from the WebExtensions API:
+      tabs = await browser.tabs.query(details);
+    } catch (error) { }
+
+    // Fallback to MTH Query:
+    if (majorBrowserVersion < 64 && tabs.length <= 1) {
+      try {
+        // Attempt to get multiselected tabs from Multiple Tab Handler:
+        var selectionInfo = await browser.runtime.sendMessage(kMTH_ID, {
+          type: 'get-tab-selection'
+        });
+        let selection = selectionInfo.selected;
+
+        if (selection.length > 0) {
+          if (windowId === null) {
+            // Get window id for filtering:
+            let window = null;
+            try {
+              window = await browser.windows.get(browser.windows.WINDOW_ID_CURRENT);
+            } catch (error) {
+              try {
+                window = await browser.windows.getCurrent();
+              } catch (error) { }
+            }
+            if (window !== null) {
+              windowId = window.id;
+            }
+          }
+
+          // Filter tabs based on window id:
+          tabs = windowId === null ? selection : selection.filter(tab => tab.windowId = windowId);
+        }
+      } catch (error) { }
+    }
+
+    // Check if not multiple selected tabs:
+    if (tabs.length <= 1 && tab !== null) {
+      // Not multiple selected tabs => Use the provided tab instead:
+      tabs = [tab];
+    } else if (tabs.length === 0) {
+      // No provided tab => Attempts to get the current active tab:
+      delete details.highlighted;
+      details.active = true;
+      tabs = await browser.tabs.query(details);
+    }
+
+    // Bookmark Tabs:
+    if (tabs.length === 0) {
+      return;
+    } else if (tabs.length === 1) {
+      // Bookmark tree with all of its children:
+      return bookmarkTree(tabs[0], getBookmarkTreeSettings());
+    } else {
+      // Bookmark only the selected tabs (not their children, but preserve parent-child relationships).
+      return bookmarkTree(tabs, Object.assign({ maxTreeDepth: 0 }, getBookmarkTreeSettings()));
+    }
+  }
+
+  // #endregion Bookmark Selected Tabs
+
+
   // #region Tree Stlye Tab
 
   browser.runtime.onMessageExternal.addListener((aMessage, aSender) => {
@@ -1334,7 +1443,7 @@ settingsLoaded.finally(async () => {
           } break;
 
           case 'fake-contextMenu-click': {
-            bookmarkTree(aMessage.tab, getBookmarkTreeSettings());
+            bookmarkSelectedTabs({ tab: aMessage.tab });
             return Promise.resolve(true);
           } break;
         }
@@ -1376,7 +1485,7 @@ settingsLoaded.finally(async () => {
       } break;
 
       case 'BookmarkTree': {
-        bookmarkTree(tab, getBookmarkTreeSettings());
+        bookmarkSelectedTabs({ tab: tab });
       } break;
     }
   });

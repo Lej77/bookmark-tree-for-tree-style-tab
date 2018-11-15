@@ -31,6 +31,13 @@ input[type="text"] {
 }
 
 
+.internal-tst-id-buttons button {
+    padding: 4px;
+    margin-top: 8px;
+}
+.internal-tst-id-buttons #TST_InternalId_UpdateButton {
+    float: right;
+}
 
 #resetSettingsButton {
     padding: 10px;
@@ -101,8 +108,17 @@ input[type="text"] {
 
     background-color: hsl(230, 3%, 60%);
     opacity: 0;
-    transition: opacity 0.1s;
+    transition: opacity 0.1s, background-color 0.1s;
 }
+/* Keyboard focus */
+.section > .headerArea:focus .hoverIndicator::after {
+    opacity: 0.15;
+    border: 2px solid hsl(230, 3%, 10%);
+}
+.section > .headerArea:focus .hoverIndicator:not(:hover)::after {
+    background-color: transparent;
+}
+/* Mouse hover */
 .section > .headerArea .hoverIndicator:hover::after {
     opacity: 0.15;
 }
