@@ -42,13 +42,16 @@
         "message": "Delay after opening a tab (-1 to disable):"
     },
     "options_delayBeforeNavigating": {
-        "message": "Delay after opening a tab before navigating to its URL (-1 to disable):"
+        "message": "Delay after opening a tab before navigating to its URL (can't be used when opening as unloaded tabs) (-1 to disable):"
     },
     "options_Milliseconds": {
         "message": "milliseconds."
     },
     "options_setParentAfterTabCreate": {
         "message": "Restore tree data after tabs are opened."
+    },
+    "options_openAsDiscardedTabs": {
+        "message": "Open as unloaded tabs. (Requires Firefox 63 or later.)"
     },
     "options_createTempTabWhenRestoring": {
         "message": "Create a temporary tab to focus on when restoring tabs."

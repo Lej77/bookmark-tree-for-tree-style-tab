@@ -366,14 +366,22 @@ async function initiatePage() {
             for (let c of ele.classList) {
                 if (c.length > requiresPrefix.length && c.startsWith(requiresPrefix)) {
                     let requireId = c.substring(requiresPrefix.length);
+                    let inverted = false;
+                    if (requireId.startsWith('!')) {
+                        requireId = requireId.slice(1);
+                        inverted = true;
+                    }
 
-                    let requriedElement = document.getElementById(requireId);
+                    const requriedElement = document.getElementById(requireId);
                     let obj = {
                         listener: (e) => {
                             obj.checkEnabled(obj);
                         },
                         checkEnabled: () => {
                             let enabled = requriedElement.checked;
+                            if (inverted) {
+                                enabled = !enabled;
+                            }
                             let eleToCheck = requriedElement;
                             while (eleToCheck) {
                                 if (enabled) {

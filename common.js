@@ -374,7 +374,7 @@ async function confirmWithNotification({ title, message, iconUrl = null }) {
   try {
     promiseInfo = await getPromiseWithResolve();
 
-    let notificationOptions = {
+    const notificationOptions = {
       type: 'basic',
 
       title: title,
@@ -383,9 +383,9 @@ async function confirmWithNotification({ title, message, iconUrl = null }) {
     if (iconUrl) {
       notificationOptions.iconUrl = iconUrl;
     }
-    let id = await browser.notifications.create(notificationOptions);
+    const id = await browser.notifications.create(notificationOptions);
 
-    let obj = {
+    const obj = {
       id: id,
       onClicked: () => {
         promiseInfo.resolve(true);
@@ -395,8 +395,18 @@ async function confirmWithNotification({ title, message, iconUrl = null }) {
       },
     };
     gNotificationObjs.push(obj);
+    
+    let result = false;
+    try {
+      result = await promiseInfo.promise;
+    } catch (error) { }
 
-    return promiseInfo.promise;
+    const index = gNotificationObjs.indexOf(obj);
+    if (index >= 0) {
+      gNotificationObjs.splice(index, 1);
+    }
+
+    return result;
   } catch (error) {
     if (promiseInfo) {
       promiseInfo.resolve(false);
@@ -404,14 +414,14 @@ async function confirmWithNotification({ title, message, iconUrl = null }) {
     return false;
   }
 }
-browser.notifications.onClicked.addListener((notificationId) => {
+browser.notifications.onClicked.addListener(function (notificationId) {
   for (let obj of gNotificationObjs) {
     if (obj.id === notificationId) {
       obj.onClicked();
     }
   }
 });
-browser.notifications.onClosed.addListener((notificationId) => {
+browser.notifications.onClosed.addListener(function (notificationId) {
   for (let obj of gNotificationObjs) {
     if (obj.id === notificationId) {
       obj.onClosed();
@@ -441,6 +451,7 @@ function getDefaultSettings() {
     setParentAfterTabCreate: false,
     detachIncorrectParentsAfter: 1500,
 
+    openAsDiscardedTabs: true,
     createTempTabWhenRestoring: true,
     tempTabURL: '',
     gruopUnderTempTabWhenRestoring: true,

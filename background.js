@@ -399,6 +399,7 @@ class TreeInfoNode {
     groupUnderTempTab = false,
     focusPreviousTab = false,
     dontFocusOnNewTabs = false,
+    openAsDiscardedTabs = false,
   } = {}) {
 
     let previousActiveTab = null;
@@ -503,7 +504,10 @@ class TreeInfoNode {
 
 
 
-
+        if (openAsDiscardedTabs && createDetails.url && !createDetails.url.toLowerCase().startsWith('about:')) {
+          createDetails.discarded = true;
+          createDetails.title = this.title;
+        }
 
         if (dontFocusOnNewTabs) {
           createDetails.active = false;
@@ -526,6 +530,10 @@ class TreeInfoNode {
         } catch (error) {
           let lastURL = createDetails.url;
           createDetails.url = `about:blank?${lastURL}`;
+          if (createDetails.discarded) {
+            delete createDetails.discarded;
+            delete createDetails.title;
+          }
           console.log(`Failed to open "${lastURL}" open "${createDetails.url}" instead.`);
           tab = await browser.tabs.create(createDetails);
         }
@@ -586,22 +594,23 @@ class TreeInfoNode {
     // #region Create Child Tabs
 
     for (let node of this.children) {
-      let childTabs = await node.openAsTabs({
-        handleParentId,
-        handleParentLast: false,
-        parentTabId: (tab || {}).id || parentTabId,
-        windowId: (tab || {}).windowId || windowId,
-        delayAfterTabOpen,
-        navigationOfOpenedTabDelay,
-        detachIncorrectParentAfterDelay,
-        checkAllowedParent,
-        allowNonCreatedParent: false,
-        createTempTab: false,
-        tempTabURL,
-        groupUnderTempTab: false,
-        focusPreviousTab,
-        dontFocusOnNewTabs,
-      });
+      const childTabs = await node.openAsTabs(
+        Object.assign({}, arguments[0], {
+          handleParentId,
+          handleParentLast: false,
+          parentTabId: (tab || {}).id || parentTabId,
+          windowId: (tab || {}).windowId || windowId,
+          delayAfterTabOpen,
+          navigationOfOpenedTabDelay,
+          detachIncorrectParentAfterDelay,
+          checkAllowedParent,
+          allowNonCreatedParent: false,
+          createTempTab: false,
+          tempTabURL,
+          groupUnderTempTab: false,
+          focusPreviousTab,
+          dontFocusOnNewTabs,
+        }));
       tabs.push(...childTabs);
     }
 
@@ -615,13 +624,15 @@ class TreeInfoNode {
     }
 
 
-    try {
-      if (focusPreviousTab && previousActiveTab) {
-        await browser.tabs.update(previousActiveTab.id, { active: true });
-      } else if (tabs.length > 0) {
-        await browser.tabs.update(tabs[0].id, { active: true });
-      }
-    } catch (error) { }
+    if (!dontFocusOnNewTabs) {
+      try {
+        if (focusPreviousTab && previousActiveTab) {
+          await browser.tabs.update(previousActiveTab.id, { active: true });
+        } else if (tabs.length > 0) {
+          await browser.tabs.update(tabs[0].id, { active: true });
+        }
+      } catch (error) { }
+    }
 
 
 
@@ -642,7 +653,7 @@ class TreeInfoNode {
         await trackedDelay(delayAfterTabOpen());
       }
 
-      try {
+      try {        
         await browser.tabs.remove(tempTab.id);
       } catch (error) { }
     }
@@ -996,7 +1007,8 @@ async function restoreTree({
   createTempTab = false,
   tempTabURL = '',
   groupUnderTempTab = false,
-  ensureOneParent = false
+  ensureOneParent = false,
+  openAsDiscardedTabs = false,
 } = {}) {
 
   let clickedBookmark = (await browser.bookmarks.getSubTree(bookmarkId))[0];
@@ -1073,6 +1085,9 @@ async function restoreTree({
     createTempTab,
     tempTabURL,
     groupUnderTempTab,
+
+    openAsDiscardedTabs,
+    dontFocusOnNewTabs: openAsDiscardedTabs,
   });
 }
 
@@ -1286,17 +1301,19 @@ settingsLoaded.finally(async () => {
     };
   };
   let getRestoreTreeSettings = () => {
+    const asDiscarded = majorBrowserVersion >= 63 && settings.openAsDiscardedTabs;
     return {
       handleParentLast: settings.setParentAfterTabCreate,
 
       delayAfterTabOpen: () => settings.delayAfterTabOpen,
-      navigationOfOpenedTabDelay: () => settings.delayBeforeNavigating,
+      navigationOfOpenedTabDelay: () => asDiscarded ? -1 : settings.delayBeforeNavigating,
       detachIncorrectParentAfterDelay: () => settings.detachIncorrectParentsAfter,
 
       createTempTab: settings.createTempTabWhenRestoring,
       tempTabURL: settings.tempTabURL,
       groupUnderTempTab: settings.gruopUnderTempTabWhenRestoring,
       ensureOneParent: settings.ensureOneParentWhenCreatingTabs,
+      openAsDiscardedTabs: asDiscarded,
 
       supportSeparators: settings.allowSeparatorsWhenRestoringTree,
       fixGroupTabURLs: settings.fixGroupTabURLsOnRestore,
