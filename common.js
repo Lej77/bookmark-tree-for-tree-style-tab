@@ -221,19 +221,62 @@ async function getInternalTSTId({ allowCached = true, searchOpenTabs = true, ope
 
     if (openGroupTab && !internalId) {
       let tempTab;
+
+      let groupTabOpened = null;
+      const onCreate = async (createdTab) => {
+        if (createdTab.windowId !== tempTab.windowId)
+          return;
+        if (!createdTab.url) {
+          // Attempt to get URL from Tree Style Tab:
+          try {
+            // Wait for TST to cache URL:
+            await delay(500);
+            // Get TST tab info:
+            createdTab = await browser.runtime.sendMessage(kTST_ID, {
+              type: 'get-tree',
+              tab: createdTab.id,
+            });
+          } catch (error) {
+            console.error('Failed to get tab info from TST.\nError:', error);
+          }
+        }
+        if (!createdTab) {
+          return;
+        }
+        const groupURLInfo = getGroupTabInfo(createdTab.url);
+        if (groupURLInfo && groupTabOpened) {
+          // A group tab was opened:
+          groupTabOpened(groupURLInfo.internalId);
+        }
+      };
       try {
         tempTab = await browser.tabs.create({ active: false });
         try {
-          let groupTab = await browser.runtime.sendMessage(kTST_ID, {
+          const groupTabOpenWaiter = new Promise((resolve, reject) => {
+            groupTabOpened = resolve;
+            browser.tabs.onCreated.addListener(onCreate);
+            setTimeout(() => reject(new Error('Timeout when waiting for group tab to be opened.')), 5000);
+          });
+
+          const groupTabOpenCommand = browser.runtime.sendMessage(kTST_ID, {
             type: 'group-tabs',
             tabs: [tempTab.id]
+          }).then(groupTab => {
+            const groupURLInfo = getGroupTabInfo(groupTab.url);
+            return groupURLInfo ? groupURLInfo.internalId : null;
           });
-          let groupURLInfo = getGroupTabInfo(groupTab.url);
-          if (groupURLInfo) {
-            internalId = groupURLInfo.internalId;
+
+          let groupTabInternalId = await Promise.race([
+            groupTabOpenWaiter,
+            groupTabOpenCommand,
+          ]);
+
+          if (groupTabInternalId) {
+            internalId = groupTabInternalId;
           }
         } catch (error) { }
       } finally {
+        browser.tabs.onCreated.removeListener(onCreate)
         if (tempTab) {
           await browser.tabs.remove(tempTab.id);
         }
