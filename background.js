@@ -1510,4 +1510,17 @@ settingsLoaded.finally(async () => {
 
   // #endregion Context Menu
 
+  
+  // #region Keyboard Commands
+
+  browser.commands.onCommand.addListener(function (command) {
+    switch (command) {
+      case 'BookmarkTree': {
+        bookmarkSelectedTabs();
+      } break;
+    }
+  });
+
+  // #endregion Keyboard Commands
+
 });

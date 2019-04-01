@@ -101,6 +101,21 @@
     "options_resetSettings_Prompt": {
         "message": "Do you want to reset all settings to default values?"
     },
+    "options_Commands_Title": {
+        "message": "Keyboard shortcuts"
+    },
+    "options_Commands_Info": {
+        "message": "Select one of the text inputs bellow and then make a keyboard combination such as \"Alt+X\" to bind the keyboard shortcut to the selected text box. You can also press the \"Prompt\" button and manually write down a keyboard shortcut if you prefer. (Keyboard shortcuts require Firefox 60 or later)"
+    },
+    "options_Commands_ResetButton": {
+        "message": "Reset"
+    },
+    "options_Commands_PromptButton": {
+        "message": "Prompt"
+    },
+    "options_Commands_PromptButton_Description": {
+        "message": "Write text representing a keyboard shortcut. For example \"Alt+X\""
+    },
     "contextMenu_TreeStyleTabAndMTH": {
         "message": "Bookmark Tr&ee Data"
     },

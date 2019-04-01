@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Bookmark Tree for Tree Style Tab",
-  "version": "2.7",
+  "version": "2.8",
   "default_locale": "en",
   "applications": {
     "gecko": {
@@ -23,5 +23,10 @@
       "common.js",
       "background.js"
     ]
+  },
+  "commands": {
+    "BookmarkTree": {
+      "description": "__MSG_contextMenu_BookmarkTree__"
+    }
   }
 }

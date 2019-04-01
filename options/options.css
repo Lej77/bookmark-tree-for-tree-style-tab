@@ -72,10 +72,12 @@ input[type="text"] {
 
     display: flex;
     position: relative;
+    overflow: hidden;
 
-    cursor: pointer;
-    
     background-color: hsl(120, 0%, 93%);
+}
+.section > .headerArea:not(.preventOpen) {
+    cursor: pointer;
 }
 .section > .contentWrapper > .contentArea {
     border-top: var(--collapsable-header-border);
@@ -87,7 +89,7 @@ input[type="text"] {
 .section > .headerArea > .hoverIndicator,
 .section > .headerArea > .hoverIndicator::after {
     position: absolute;
-    
+
     top: 0px;
     bottom: 0px;
     left: 0px;
@@ -115,11 +117,12 @@ input[type="text"] {
     opacity: 0.15;
     border: 2px solid hsl(230, 3%, 10%);
 }
-.section > .headerArea:focus .hoverIndicator:not(:hover)::after {
+.section > .headerArea:focus .hoverIndicator:not(:hover)::after,
+.section > .headerArea.preventOpen:focus .hoverIndicator::after {
     background-color: transparent;
 }
 /* Mouse hover */
-.section > .headerArea .hoverIndicator:hover::after {
+.section > .headerArea:not(.preventOpen) .hoverIndicator:hover::after {
     opacity: 0.15;
 }
 
@@ -186,6 +189,12 @@ input[type="text"] {
     text-align: center;
     align-self: center;
 }
+.section > .headerArea.stretch > *,
+.section > .headerArea > *.stretch {
+    flex: 1 1 auto;
+    text-align: stretch;
+    align-self: stretch;
+}
 .section:not(.noShadow) {
     box-shadow: 1px 1px 4px -1px;
 }
@@ -212,3 +221,50 @@ input[type="text"] {
 
 /* #endregion Collapsable Section */
 
+
+/* #region Shortcuts */
+
+.commandsArea {
+    margin-top: 15px;
+}
+.commandArea {
+    flex: 1 1 auto !important;
+    align-self: center;
+    display: flex;
+
+    overflow: hidden;
+
+    z-index: 1000 !important;
+}
+
+.commandArea > label {
+    text-align: center;
+    flex: 1 1 auto !important;
+}
+
+.commandArea > .inputArea {
+    display: flex;
+    padding: 0px;
+    margin: -2px;
+    font-size: 20px;
+}
+.commandArea > .inputArea * {
+    flex: 1 1 auto;
+}
+
+.commandArea > .inputArea > input[type="text"] {
+    width: 200px;
+    margin-right: 5px;
+    margin-left: -1px;
+
+    padding-left: 10px;
+}
+
+.commandArea > .inputArea > button {
+    text-align: center;
+}
+.commandArea > .inputArea > button:first-of-type {
+    margin-right: -2px;
+}
+
+/* #endregion Shortcuts */
