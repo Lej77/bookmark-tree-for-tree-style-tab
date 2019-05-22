@@ -1,0 +1,7 @@
+.requiresAny,
+.disabled-due-to-dependent-value {
+    opacity: 0.6;
+}
+*:not(.disabled-due-to-dependent-value) ~ .requiresAny {
+    opacity: 1;
+}

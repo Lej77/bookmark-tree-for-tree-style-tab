@@ -1,0 +1,26 @@
+/* #region Global */
+
+.textSelectable {
+    -moz-user-select: text;
+}
+.textNotSelectable {
+    -moz-user-select: none;
+}
+
+*[class*='message'] {
+    white-space: pre-line;
+}
+
+
+.area {
+    border: 1px solid black;
+    border-radius: 5px;
+}
+.area:not(.noPadding) {
+    padding: 10px;
+}
+.area:not(.noMargin) {
+    margin: 3px;
+}
+
+/* #endregion Global */
