@@ -1,0 +1,205 @@
+{
+    "options_section_ContextMenuActive": {
+        "message": "上下文菜单项",
+        "hash": "bc84d67a17295dc7030e144f2d976297"
+    },
+    "options_section_ContextMenuLabels": {
+        "message": "上下文菜单标签",
+        "hash": "adccf3674d1404cb0cdb6df61fa8e9b3"
+    },
+    "options_section_CreateBookmark": {
+        "message": "从标签页创建到书签",
+        "hash": "9977682842f21162e34cd5ae0f46052b"
+    },
+    "options_section_CreateTabs": {
+        "message": "从书签创建到标签页",
+        "hash": "feb1b848616b18905395d61ffd41cb76"
+    },
+    "options_section_TreeStyleTabId": {
+        "message": "Tree Style Tab 的内部 id",
+        "hash": "1bdabdf6cb26fd0ca6bc61408ebfb13f"
+    },
+    "options_hasTabContextMenu": {
+        "message": "为 Firefox 标签页显示上下文菜单项。",
+        "hash": "f4128397076b52bc7b2c3707fd25966a"
+    },
+    "options_hasTSTContextMenu": {
+        "message": "在 Tree Style Tab 侧栏中显示上下文菜单项。（用到了 Firefox 64 以及更高版本中的 Firefox 标签页选项。）",
+        "hash": "40f45663157fd149cbaa2cfc61c8761e"
+    },
+    "options_hasMTHContextMenu": {
+        "message": "为 Multiple Tab Handler 选中项显示上下文菜单项。（用到了 Firefox 64 以及更高版本中的 Firefox 标签页选项。）",
+        "hash": "4d7fbd272e6b2cbc6373ea74da84dca0"
+    },
+    "options_customTSTContextMenuLabel": {
+        "message": "自定义 Tree Style Tab 上下文菜单项的标签（在字母之前放置一个 “&” 符号将会使该字母被用作该项的键盘快捷方式）（留空代表使用默认标签）：",
+        "hash": "06ada40cf514e94f735197af8935faaa"
+    },
+    "options_customMTHContextMenuLabel": {
+        "message": "自定义 Multiple Tab Handler 上下文菜单项的标签（在字母之前放置一个 “&” 符号将会使该字母被用作该项的键盘快捷方式）（留空代表使用默认标签）：",
+        "hash": "08317899603767a5013656fb954d0bad"
+    },
+    "options_customRestoreTreeContextMenuLabel": {
+        "message": "自定义 “还原标签树” 上下文菜单项的标签（在字母之前放置一个 “&” 符号将会使该字母被用作该项的键盘快捷方式）（留空代表使用默认标签）：",
+        "hash": "0907f06178d9f338cfd1c1cbde4f1653"
+    },
+    "options_customBookmarkTreeContextMenuLabel": {
+        "message": "自定义位于 Firefox 标签页上的 “将标签树加入书签” 上下文菜单项的标签（在字母之前放置一个 “&” 符号将会使该字母被用作该项的键盘快捷方式）（留空代表使用默认标签）：",
+        "hash": "1132770c3f73601d19a9a75d8b70fc35"
+    },
+    "options_bookmarkSuffix": {
+        "message": "对于保存有 Tree Style Tab 数据的那些书签文件夹，这里的文本会被附加到它们标题的末尾：",
+        "hash": "cc3701e5fea6395d54c8af1af37367c2"
+    },
+    "options_delayAfterTabOpen": {
+        "message": "打开一个标签页后的延迟（-1 代表禁用）：",
+        "hash": "470c991903beff7a9bc9a9184fd5553c"
+    },
+    "options_delayBeforeNavigating": {
+        "message": "从打开一个标签页到导航至其网址之间的延迟（当打开为未加载标签页时，该项无法被使用）（-1 代表禁用）：",
+        "hash": "9f1869e6c5cbf2a832404444db5aff92"
+    },
+    "options_Milliseconds": {
+        "message": "毫秒。",
+        "hash": "8764b81b03b30c5b729f931277c7b4d7"
+    },
+    "options_setParentAfterTabCreate": {
+        "message": "在标签页被打开后还原其标签树结构数据。",
+        "hash": "bc58950998984fc0e75a71db9c73d9f5"
+    },
+    "options_openAsDiscardedTabs": {
+        "message": "打开为未加载标签页。（这需要 Firefox 63 或者更高版本。）",
+        "hash": "3f6bf93427396bfda06a7728b66b9f8e"
+    },
+    "options_createTempTabWhenRestoring": {
+        "message": "在还原标签页时创建一个临时标签页用来聚焦。",
+        "hash": "343670d897898660a2cb46e2685ce779"
+    },
+    "options_tempTabURL": {
+        "message": "临时标签页网址（留空代表使用标准新建标签页）：",
+        "hash": "c9c615ab78cee4cf5af4a2ea2c41ce72"
+    },
+    "options_gruopUnderTempTabWhenRestoring": {
+        "message": "在还原标签页时将这些标签页分组到临时标签页之下。",
+        "hash": "2fcb06040f494b45092250779ebd950f"
+    },
+    "options_ensureOneParentWhenCreatingTabs": {
+        "message": "确保被创建的标签页拥有共同的父项。",
+        "hash": "1ee8704b1908693751d51252833aa0c7"
+    },
+    "options_detachIncorrectParentsAfter": {
+        "message": "在该延迟后分离那些错误的父项（-1 代表）禁用：",
+        "hash": "cef3132d045ed5f99265fb07af2f90f8"
+    },
+    "options_allowSeparatorsWhenRestoringTree": {
+        "message": "在从书签还原标签树时，把分割条一并算作文件夹，解析其中的标签树结构数据。",
+        "hash": "4a3bacada1c590626481b35c226b4dc3"
+    },
+    "options_bookmarkTreeWithSeparators": {
+        "message": "通过书签分割条而非书签文件夹来保存标签树结构数据",
+        "hash": "620e537ab3e862705e06737ccafdd44b"
+    },
+    "options_bookmarkGroupTabsWithLegacyURL": {
+        "message": "将带有传统网址 “about:treestyletab-group” 的 Tree Style Tab 分组标签页加入书签。这意味着，即使 Tree Style Tab 的内部 id 被更改，它们也会被正确打开。",
+        "hash": "fe06397e533bd5ef9425c061abea28a9"
+    },
+    "options_fixGroupTabURLsOnRestore": {
+        "message": "修复 Tree Style Tab 分组标签页的网址。允许打开带有传统网址 “about:treestyletab-group” 的分组标签页，以及使用了错误的 Tree Style Tab 内部 id 的分组标签页书签。",
+        "hash": "5044ccea783bb106172facb128a60d23"
+    },
+    "options_treeStyleTabInternalId": {
+        "message": "缓存的 Tree Style Tab 内部 id（用于修复分组标签页）：",
+        "hash": "b58869985cb9580280400875f40949dc"
+    },
+    "options_warnWhenBookmarkingMoreThan": {
+        "message": "在尝试添加的书签数量超过该值时发出警告（-1 代表禁用）：",
+        "hash": "e2acbab15f6771371dd90ff042c690d2"
+    },
+    "options_warnWhenRestoringMoreThan": {
+        "message": "在尝试还原的书签数量超过该值时发出警告（-1 代表禁用）：",
+        "hash": "175d2b05a8c7c2058bebe52aebc3d3e9"
+    },
+    "options_TST_InternalId_Reset": {
+        "message": "重置",
+        "hash": "0d25968a7dfc21f95043a86dd5373b81"
+    },
+    "options_TST_InternalId_ForceUpdate": {
+        "message": "强制更新",
+        "hash": "a81713cdaaf00348fe28b54db39e75db"
+    },
+    "options_resetSettings": {
+        "message": "重置设置",
+        "hash": "f5545c85577b03ed93d451abf748ce8d"
+    },
+    "options_resetSettings_Prompt": {
+        "message": "您想要将所有设置重置到默认值吗？",
+        "hash": "efb0732b8fbad8ba229adacec8e59350"
+    },
+    "options_Commands_Title": {
+        "message": "键盘快捷方式",
+        "hash": "3e4c94412820831fbea1494aa4d5ecf4"
+    },
+    "options_Commands_Info": {
+        "message": "选择下方的一个文本输入框，然后按下一个键盘组合比如 “Alt+X” 来将其绑定为所选文本框的键盘快捷方式。如果你想的话，也可以按下 “指定” 按钮并手动输入一个键盘快捷方式。（键盘快捷方式需要 Firefox 60 或者 更高的版本）",
+        "hash": "d6711bc41af7a9731bc4b1d271f65d27"
+    },
+    "options_Commands_ResetButton": {
+        "message": "重置",
+        "hash": "0d25968a7dfc21f95043a86dd5373b81"
+    },
+    "options_Commands_PromptButton": {
+        "message": "指定",
+        "hash": "9635e60de0a0ced247f57a018b078152"
+    },
+    "options_Commands_PromptButton_Description": {
+        "message": "请输入文本来表示一个键盘快捷键。比如 “Alt+X”",
+        "hash": "2b60e52f0d530f4e64cb067e788ce50f"
+    },
+    "contextMenu_TreeStyleTabAndMTH": {
+        "message": "将标签树数据加入书签(&E)",
+        "hash": "1ac902d2a3b8255d381c6759a94e5762"
+    },
+    "contextMenu_RestoreTree": {
+        "message": "还原标签树",
+        "hash": "7488c40cdfb50a0f92bf1a53d4600b68"
+    },
+    "contextMenu_BookmarkTree": {
+        "message": "将标签树数据加入书签",
+        "hash": "88dbea79f24f92e50c618f7f685f4b27"
+    },
+    "bookmark_MultipleTabsTitle": {
+        "message": "$firstTitle$ 以及更多",
+        "placeholders": {
+            "firstTitle": { "content": "$1" }
+        },
+        "hash": "ccf4ee0526c6d315f0a5c39314040c25"
+    },
+    "bookmark_DefaultTSTSuffix": {
+        "message": " [TST]",
+        "hash": "ddec7aefa3b9163ff157f7d654bfd3db"
+    },
+    "notifications_BookmarkTree_Confirm_Title": {
+        "message": "您真的想要将这些标签页加入书签吗？",
+        "hash": "3b59f0a6cac1a6311ab8eb0f7a3f26d6"
+    },
+    "notifications_BookmarkTree_Confirm_Message": {
+        "message": "您真的想要将这 $count$ 个标签页加入书签吗？如果是的话，请在此通知上点击，否则请关闭它。",
+        "placeholders": {
+            "count": { "content": "$1" }
+        },
+        "hash": "a82eae33595b6928d73bd5c1969a9c42"
+    },
+    "notifications_RestoreTree_Confirm_Title": {
+        "message": "您真的想要打开这些书签吗？",
+        "hash": "718a9c46913e3f52c40be87eed5eb0fc"
+    },
+    "notifications_RestoreTree_Confirm_Message": {
+        "message": "您真的想要打开这 $count$ 个书签吗？如果是的话，请在此通知上点击，否则请关闭它。",
+        "placeholders": {
+            "count": { "content": "$1" }
+        },
+        "hash": "87c46413feff7656bc65f3a0a924293b"
+    },
+
+    "__WET_LOCALE__": { "message": "zh" }
+}
