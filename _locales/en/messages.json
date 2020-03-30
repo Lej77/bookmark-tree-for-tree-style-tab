@@ -2,9 +2,6 @@
     "options_section_ContextMenuActive": {
         "message": "Context Menu Items"
     },
-    "options_section_ContextMenuLabels": {
-        "message": "Context Menu Labels"
-    },
     "options_section_CreateBookmark": {
         "message": "Create Bookmark from Tabs"
     },
@@ -13,6 +10,33 @@
     },
     "options_section_TreeStyleTabId": {
         "message": "Internal id for Tree Style Tab"
+    },
+    "options_contextMenu_RestoreTree": {
+        "message": "Restore Tree"
+    },
+    "options_contextMenu_MigrateTreeData": {
+        "message": "Change Tree Data Format"
+    },
+    "options_contextMenu_BookmarkTreeData": {
+        "message": "Bookmark Tree Data"
+    },
+    "options_contextMenu_BookmarkTreeData_TST": {
+        "message": "Bookmark Tree Data (Tree Style Tab) (Legacy)"
+    },
+    "options_contextMenu_BookmarkTreeData_MTH": {
+        "message": "Bookmark Tree Data (Multiple Tab Handler) (Legacy)"
+    },
+    "options_contextMenu_RightClickTip": {
+        "message": "Tip: you can right click or middle click context menu items and if you have a popup (such as the bookmark toolbar button menu) then the popup won't be closed."
+    },
+    "options_contextMenu_NonFolderBookmarkTip": {
+        "message": "Tip: the bookmark context menu items doesn't need to be used on folders, they work on individual bookmarks as well. When used on such a bookmark the tree structure of the bookmark's folder will be parsed and then the bookmark's tree will be found. If the bookmark represents a child tab then its parent's tree will be used. This allows for restoring smaller trees or re-saving and separating out a smaller part of a larger bookmark collection."
+    },
+    "options_hasRestoreTreeContextMenu": {
+        "message": "Show context menu item for Bookmarks to allow restoring trees."
+    },
+    "options_hasMigrateContextMenu": {
+        "message": "Show context menu item for Bookmarks to allow changing the Tree Data Format. The affected bookmarks will be saved again in a sibling folder with a different Tree Data Format. The original bookmarks won't be modified or removed."
     },
     "options_hasTabContextMenu": {
         "message": "Show context menu item for Firefox Tabs."
@@ -32,8 +56,14 @@
     "options_customRestoreTreeContextMenuLabel": {
         "message": "Custom label for Restore Tree context menu item (place a \"&\" symbol before the letter that should be used as the keyboard shortcut) (empty to use default label):"
     },
+    "options_customMigrateContextMenuLabel": {
+        "message": "Custom label for Change Tree Data Format context menu item (place a \"&\" symbol before the letter that should be used as the keyboard shortcut) (empty to use default label):"
+    },
     "options_customBookmarkTreeContextMenuLabel": {
         "message": "Custom label for Bookmark Tree context menu item on Firefox Tabs (place a \"&\" symbol before the letter that should be used as the keyboard shortcut) (empty to use default label):"
+    },
+    "options_customTopLevelBookmarkContextMenuLabel": {
+        "message": "Custom label for the top level context menu item if there are multiple bookmark context menu items (place a \"&\" symbol before the letter that should be used as the keyboard shortcut) (empty to use default label):"
     },
     "options_bookmarkSuffix": {
         "message": "Text to append to title of bookmark folders saved with Tree Style Tab data:"
@@ -68,17 +98,74 @@
     "options_detachIncorrectParentsAfter": {
         "message": "Detach incorrect parents after a delay (-1 to disable):"
     },
-    "options_allowSeparatorsWhenRestoringTree": {
-        "message": "Parse tree data from separators as well as folders when restoring trees from bookmarks."
+    "options_migrateTreeData_removeSuffix": {
+        "message": "Suffix to ignore from the original bookmark folder's title when creating a sibling folder:"
     },
-    "options_bookmarkTreeWithSeparators": {
-        "message": "Save tree data with bookmark separators instead of bookmark folders."
+    "options_migrateTreeData_addSuffix": {
+        "message": "Text to append to the titles of created bookmark folders:"
+    },
+    "options_migrateTreeData_onlyAddSuffixIfSuffixWasRemoved": {
+        "message": "Only add suffix to created bookmark folders if the original bookmark folder had a suffix that could be ignored."
+    },
+    "options_migrateTreeData_fromBookmarkFormat_legend": {
+        "message": "Source Tree Data Format"
+    },
+    "options_migrateTreeData_fromBookmarkFormat": {
+        "message": "Specify how tree data should be parsed from the original bookmarks: "
+    },
+    "options_migrateTreeData_toBookmarkFormat_legend": {
+        "message": "Target Tree Data Format"
+    },
+    "options_migrateTreeData_toBookmarkFormat": {
+        "message": "Specify how tree data should be stored when creating the new bookmarks: "
+    },
+    "options_bookmarkTreeWithBookmarkFormat": {
+        "message": "Specify how tree data should be stored when saving trees to bookmarks: "
+    },
+    "options_bookmarkTreeWithBookmarkFormat_warning": {
+        "message": "Note: if you change this setting then remember to change the setting for how the tree data is parsed from bookmarks as well."
+    },
+    "options_restoreTreeWithBookmarkFormat": {
+        "message": "Specify how tree data should be parsed when restoring trees from bookmarks: "
+    },
+    "options_restoreTreeWithBookmarkFormat_warning": {
+        "message": "Note: if you change this setting then remember to change the setting for how the tree data is saved to bookmarks as well."
+    },
+    "options_bookmarkFormat_legend": {
+        "message": "Tree Data Format"
+    },
+    "options_bookmarkFormat_bookmarkSeparators": {
+        "message": "Bookmark separators"
+    },
+    "options_bookmarkFormat_info_bookmarkSeparators": {
+        "message": ": This format uses bookmark separators to store tree information.\nAn odd number of separators before a bookmark indicates that the bookmark is a parent tab. Bookmarks after such a parent bookmark are considered children of it. A pair of bookmark separators in a row decreases the tree level of bookmarks after that point."
+    },
+    "options_bookmarkFormat_bookmarkFolders": {
+        "message": "Bookmark folders"
+    },
+    "options_bookmarkFormat_info_bookmarkFolders": {
+        "message": ": This format uses bookmark folders to store tree information.\nThe first bookmark in a bookmark folder represents the parent tab and the rest of the bookmarks in the folder are child tabs of that parent tab. If the first item in the bookmark folder is a bookmark folder then the bookmarks will be interpreted as top level tabs."
+    },
+    "options_bookmarkFormat_bookmarkTitles": {
+        "message": "Bookmark titles"
+    },
+    "options_bookmarkFormat_info_bookmarkTitles": {
+        "message": ": This format stores tree data in a prefix on bookmark titles and it is the format used by Tree Style Tab v3.2.0 and later (earlier versions couldn't store tree data at all)."
+    },
+    "options_bookmarkFormat_auto": {
+        "message": "Auto detect"
+    },
+    "options_bookmarkFormat_info_auto": {
+        "message": ": Attempt to auto detect the tree data format from the bookmarks that should be restored to tabs."
     },
     "options_bookmarkGroupTabsWithLegacyURL": {
-        "message": "Bookmark Tree Style Tab group tabs with the legacy URL \"about:treestyletab-group\". This means that they will be opened correctly even if Tree Style Tab's internal id is changed."
+        "message": "Bookmark Tree Style Tab group tabs with the legacy URI \"about:treestyletab-group\". This means that they will be opened correctly even if Tree Style Tab's internal id is changed."
+    },
+    "options_bookmarkGroupTabsWithLegacyURL_NewerFallbackURL": {
+        "message": "Use the new custom group tab URI \"ext+treestyletab:group\" which was introduced in Tree Style Tab v3.1.6 instead of the older \"about:treestyletab-group\" legacy URI."
     },
     "options_fixGroupTabURLsOnRestore": {
-        "message": "Fix Tree Style Tab group tab URLs. Allows opening group tabs with the legacy URL \"about:treestyletab-group\" and also group tab bookmarks that use the wrong internal id for Tree Style Tab."
+        "message": "Fix Tree Style Tab group tab URLs. Allows opening group tabs with the legacy URL \"about:treestyletab-group\" or the newer \"ext+treestyletab:group\" URL and also group tab bookmarks that use the wrong internal id for Tree Style Tab."
     },
     "options_treeStyleTabInternalId": {
         "message": "Cached internal id for Tree Style Tab (used to fix group tabs):"
@@ -116,6 +203,9 @@
     "options_Commands_PromptButton_Description": {
         "message": "Write text representing a keyboard shortcut. For example \"Alt+X\""
     },
+    "contextMenu_BookmarkTopLevelDefaultLabel": {
+        "message": "Bookmark Tree for TST"
+    },
     "contextMenu_TreeStyleTabAndMTH": {
         "message": "Bookmark Tr&ee Data"
     },
@@ -124,6 +214,9 @@
     },
     "contextMenu_BookmarkTree": {
         "message": "Bookmark Tree Data"
+    },
+    "contextMenu_MigrateTreeData": {
+        "message": "Change Tree Data Format"
     },
     "bookmark_MultipleTabsTitle": {
         "message": "$firstTitle$ and more",
@@ -136,11 +229,15 @@
     "bookmark_DefaultTSTSuffix": {
         "message": " [TST]"
     },
+    "bookmark_DefaultMigrationSuffix": {
+        "message": " [Migrated] [TST]"
+    },
     "notifications_BookmarkTree_Confirm_Title": {
         "message": "Do you really want to bookmark these tabs?"
     },
     "notifications_BookmarkTree_Confirm_Message": {
         "message": "Do you really want to bookmark $count$ tab(s)? If so then click on this notification, otherwise close it.",
+        "description": "Note that this will be shown in a notification and they have a maximum number of character that will be shown. If the message is too long the message will be cut of early.",
         "placeholders": {
             "count": {
                 "content": "$1"
@@ -152,6 +249,7 @@
     },
     "notifications_RestoreTree_Confirm_Message": {
         "message": "Do you really want to open $count$ bookmark(s)? If so then click on this notification, otherwise close it.",
+        "description": "Note that this will be shown in a notification and they have a maximum number of character that will be shown. If the message is too long the message will be cut of early.",
         "placeholders": {
             "count": {
                 "content": "$1"

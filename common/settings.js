@@ -173,9 +173,9 @@ export class SettingsTracker {
    * Get values from local storage.
    *
    * @static
-   * @param {string | string[] | Object} key The keys to get values for. If an `Object` then get values for all keys and the values in the object correspond to default values.
+   * @param {string | string[] | Object | null} key The keys to get values for. If an `Object` then get values for all keys and the values in the object correspond to default values. If `null` then return an object with all values.
    * @param {any| Array} [defaultValue=null] The value to use for keys that aren't set. Ignored if key is an `Object`.
-   * @returns {any | Object} If one key was provided (not in an array) then the value for that key. Otherwise an object with a key for each provided key.
+   * @returns {Promise<any | Object>} If one key was provided (not in an array) then the value for that key. Otherwise an object with a key for each provided key.
    * @memberof SettingsTracker
    */
   static async get(key, defaultValue = null) {

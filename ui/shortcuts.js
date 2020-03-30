@@ -41,6 +41,7 @@ export function createShortcutsArea({
 
   const information = document.createElement('div');
   information.classList.add(messagePrefix + infoMessage);
+  information.classList.add('textSelectable');
   section.content.appendChild(information);
 
 
@@ -186,10 +187,14 @@ export function createShortcutsArea({
 
     promptButton.addEventListener('click', async (e) => {
       const value = prompt(browser.i18n.getMessage('options_Commands_PromptButton_Description'), command.shortcut || '');
+      if (value == null) {
+        // Canceled
+        return;
+      }
 
       await browser.commands.update({
         name: command.name,
-        shortcut: value,
+        shortcut: value || '',
       });
 
       updateShortcut();

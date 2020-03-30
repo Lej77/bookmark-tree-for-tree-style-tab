@@ -2,6 +2,7 @@
 
 
 export const kTST_LEGACY_GROUP_URL = 'about:treestyletab-group';
+export const kTST_GROUP_URL = 'ext+treestyletab:group';
 
 /**
  * @typedef {Object} GroupTabInfo
@@ -9,6 +10,7 @@ export const kTST_LEGACY_GROUP_URL = 'about:treestyletab-group';
  * @property {boolean|undefined} Info.temporary Indicates if the group tab is temporary.
  * @property {string|null} Info.internalId The internal id for Tree Style Tab. If this is `null` then the group tab uses the legacy group tab URL.
  * @property {string|null} Info.urlArguments All arguments that should be suffixed to the group tab URL.
+ * @property {boolean} Info.newFallbackURL `true` if the web extension fallback URL is used instead of the legacy group tab URL.
  */
 null;
 
@@ -20,8 +22,8 @@ null;
  * @param {GroupTabInfo} Info Information used to generate the group tabs URL. If `urlArguments` is provided then the `temporary` and `name` arguments are ignored.
  * @returns {string} URL for the specified group tab.
  */
-export function getGroupTabURL({ name = null, temporary = undefined, internalId = null, urlArguments = null } = {}) {
-    let url = internalId ? 'moz-extension://' + internalId + '/resources/group-tab.html' : kTST_LEGACY_GROUP_URL;
+export function getGroupTabURL({ name = null, temporary = undefined, internalId = null, urlArguments = null, newFallbackURL = false } = {}) {
+    let url = internalId ? 'moz-extension://' + internalId + '/resources/group-tab.html' : (newFallbackURL ? kTST_GROUP_URL : kTST_LEGACY_GROUP_URL);
     if (urlArguments || urlArguments === '') {
         url += urlArguments;
         return url;
@@ -58,9 +60,13 @@ export function getGroupTabInfo(url) {
     };
 
     let internalId = null;
+    let newFallbackURL = false;
 
     if (url.startsWith(kTST_LEGACY_GROUP_URL)) {
         url = removeLength(url, kTST_LEGACY_GROUP_URL.length);
+    } else if (url.startsWith(kTST_GROUP_URL)) {
+        url = removeLength(url, kTST_GROUP_URL.length);
+        newFallbackURL = true;
     } else {
         const start = 'moz-extension://';
         if (!url.startsWith(start)) {
@@ -85,6 +91,7 @@ export function getGroupTabInfo(url) {
     const info = {
         internalId: internalId,
         urlArguments: url,
+        newFallbackURL,
     };
 
 

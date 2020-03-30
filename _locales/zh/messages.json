@@ -3,10 +3,6 @@
         "message": "上下文菜单项",
         "hash": "bc84d67a17295dc7030e144f2d976297"
     },
-    "options_section_ContextMenuLabels": {
-        "message": "上下文菜单标签",
-        "hash": "adccf3674d1404cb0cdb6df61fa8e9b3"
-    },
     "options_section_CreateBookmark": {
         "message": "从标签页创建到书签",
         "hash": "9977682842f21162e34cd5ae0f46052b"
@@ -90,14 +86,6 @@
     "options_detachIncorrectParentsAfter": {
         "message": "在该延迟后分离那些错误的父项（-1 代表）禁用：",
         "hash": "cef3132d045ed5f99265fb07af2f90f8"
-    },
-    "options_allowSeparatorsWhenRestoringTree": {
-        "message": "在从书签还原标签树时，把分割条一并算作文件夹，解析其中的标签树结构数据。",
-        "hash": "4a3bacada1c590626481b35c226b4dc3"
-    },
-    "options_bookmarkTreeWithSeparators": {
-        "message": "通过书签分割条而非书签文件夹来保存标签树结构数据",
-        "hash": "620e537ab3e862705e06737ccafdd44b"
     },
     "options_bookmarkGroupTabsWithLegacyURL": {
         "message": "将带有传统网址 “about:treestyletab-group” 的 Tree Style Tab 分组标签页加入书签。这意味着，即使 Tree Style Tab 的内部 id 被更改，它们也会被正确打开。",

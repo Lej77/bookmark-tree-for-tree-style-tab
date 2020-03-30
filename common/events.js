@@ -31,21 +31,19 @@ export function accessDataObjectWithProperties(accessObject, dataObject) {
  * Listens to an event.
  * 
  * @class EventListener
- * @template T
+ * @template T, R, E, T2, T3, T4, T5, T6, T7, T8, T9
  */
 export class EventListener {
 
   /**
-   * Creates an instance of EventListener.
+   * Creates an instance of EventListener that listens to an event.
    * @param {Object} DOMElementOrEventObject If DOM event: the DOM object to listen on. Otherwise: the event object to add a listener to.
-   * @param {string | function(T,)} eventNameOrCallback If DOM event: the name of the event. Otherwise: callback.
-   * @param {null | function(T,) | Object} callbackOrExtraParameters If DOM event: callback. Otherwise: optional extra parameter for the add listener function.
+   * @param {string | function(T, T2, T3, T4, T5, T6, T7, T8, T9...): R} eventNameOrCallback If DOM event: the name of the event. Otherwise: callback.
+   * @param {null | function(T, T2, T3, T4, T5, T6, T7, T8, T9...): R | E} callbackOrExtraParameters If DOM event: callback. Otherwise: optional extra parameter for the add listener function, will only be applied if "truthy".
    * @memberof EventListener
    */
   constructor(DOMElementOrEventObject, eventNameOrCallback, callbackOrExtraParameters = null) {
-    Object.assign(this, {
-      _onDisposed: null,
-    });
+    this._onDisposed = null;
 
     if (typeof eventNameOrCallback === 'string' && typeof callbackOrExtraParameters === 'function') {
       this._DOMElement = DOMElementOrEventObject;
@@ -106,22 +104,35 @@ export class EventListener {
  * Keeps track of listeners for an event.
  * 
  * @class EventSubscriber
- * @template T
+ * @template T, R, E, T2, T3, T4, T5, T6, T7, T8, T9
  */
 export class EventSubscriber {
+
+  /**
+   * Creates an instance of EventSubscriber.
+   * @param {null | function(EventSubscriber<T, R, E, T2, T3, T4, T5, T6, T7, T8, T9>, function(T, T2, T3, T4, T5, T6, T7, T8, T9...): R, boolean)} [changeCallback=null] A callback that will be notified when the subscribed listeners are changed.
+   * @memberof EventSubscriber
+   */
   constructor(changeCallback = null) {
-    Object.assign(this, {
-      _listeners: new Set(),
-      _changeCallback: changeCallback && typeof changeCallback === 'function' ? changeCallback : null,
-      _extraParameters: new WeakMap(),
-    });
+
+    /**
+     * Callbacks that are listening to this event.
+     * @type {Set<function(T, T2, T3, T4, T5, T6, T7, T8, T9...)>}
+     */
+    this._listeners = new Set();
+    /**
+     * A callback that will be notified when the subscribed listeners are changed.
+     * @type {null | function(EventSubscriber<T, R, E, T2, T3, T4, T5, T6, T7, T8, T9>, function(T, T2, T3, T4, T5, T6, T7, T8, T9...): R, boolean)}
+     */
+    this._changeCallback = changeCallback && typeof changeCallback === 'function' ? changeCallback : null;
+    this._extraParameters = new WeakMap();
   }
 
   /**
    * Add listener to the event.
    *
-   * @param {function(T,)} listener A function that will be called when the event is triggered.
-   * @param {Object | undefined} extraParameters If this value isn't undefined then it can be used by the event to filter when the callback is called.
+   * @param {function(T, T2, T3, T4, T5, T6, T7, T8, T9...): R} listener A function that will be called when the event is triggered.
+   * @param {E | undefined} extraParameters If this value isn't undefined then it can be used by the event to filter when the callback is called.
    * @memberof EventSubscriber
    */
   addListener(listener, extraParameters = undefined) {
@@ -138,7 +149,7 @@ export class EventSubscriber {
   /**
    * Remove a listener from the event.
    *
-   * @param {function(T,)} listener A function that was previously added to the event.
+   * @param {function(T, T2, T3, T4, T5, T6, T7, T8, T9...): R} listener A function that was previously added to the event.
    * @memberof EventSubscriber
    */
   removeListener(listener) {
@@ -154,7 +165,7 @@ export class EventSubscriber {
   /**
    * Check if a function is subscribed to the event.
    *
-   * @param {function(T,)} listener A function that might have been subscribed to the event.
+   * @param {function(T, T2, T3, T4, T5, T6, T7, T8, T9...): R} listener A function that might have been subscribed to the event.
    * @returns {boolean} True if the event is subscribed to the event; otherwise false.
    * @memberof EventSubscriber
    */
@@ -168,18 +179,17 @@ export class EventSubscriber {
  * Advanced features for an event subscriber such as calling all listeners.
  * 
  * @class EventManager
- * @extends {EventSubscriber<T>}
- * @template T
+ * @extends {EventSubscriber<T, R, E, T2, T3, T4, T5, T6, T7, T8, T9>}
+ * @template T, R, E, T2, T3, T4, T5, T6, T7, T8, T9
  */
 export class EventManager extends EventSubscriber {
   constructor() {
     super();
-    Object.assign(this, {
-      _changeCallback: this._handleChange.bind(this),
-      _subscriber: null,
-      _onChange: null,
-      _stackTrackWhenAdded: new WeakMap(),
-    });
+
+    this._changeCallback = this._handleChange.bind(this);
+    this._subscriber = null;
+    this._onChange = null;
+    this._stackTrackWhenAdded = new WeakMap();
   }
 
   _handleChange(obj, listener, added) {
@@ -192,10 +202,27 @@ export class EventManager extends EventSubscriber {
       this._onChange.fire(this, listener, added);
   }
 
+  /**
+   * Get the extra parameter for a listener.
+   *
+   * @param {function(T, T2, T3, T4, T5, T6, T7, T8, T9...): R} listener The listener to get the extra parameter for.
+   * @returns {undefined | E} The listener's extra parameter. Will be `undefined` if no extra parameter was defined.
+   * @memberof EventManager
+   */
+  getExtraParameter(listener) {
+    return this._extraParameters.get(listener);
+  }
 
-
+  /**
+   * Filter listeners based on their extra parameters.
+   *
+   * @param {function(E): boolean} callback Parameter is a listeners extra parameters. Return `true` to allow the listener; otherwise return `false`.
+   * @param {boolean} [any=false] If this is `true` then the function will only check if there is any listener that passes the condition. Otherwise the function will return all listeners that passes the condition.
+   * @returns {boolean | (function(T, T2, T3, T4, T5, T6, T7, T8, T9...): R)[]} The listener callbacks for which the filter callback returned `true`.
+   * @memberof EventManager
+   */
   _filterListeners(callback, any = false) {
-    let checkListener = (listener) => callback(this._extraParameters.get(listener));
+    let checkListener = (listener) => callback(this.getExtraParameter(listener));
     if (!callback || typeof callback !== 'function')
       checkListener = () => true;
 
@@ -209,7 +236,7 @@ export class EventManager extends EventSubscriber {
   /**
    * Check if any listeners' extra parameter fulfills a test.
    *
-   * @param {*} filterCallback Called to check a listener's extra parameter.
+   * @param {function(E): boolean} filterCallback Called to check a listener's extra parameter.
    * @returns {boolean} True if any listeners extra parameter fulfilled the callback.
    * @memberof EventManager
    */
@@ -217,11 +244,25 @@ export class EventManager extends EventSubscriber {
     return this._filterListeners(filterCallback, true);
   }
 
-
-  filterAndFire(filterCallback, ...args) {
+  /**
+   * Notify event listeners that have extra parameters that match a certain condition.
+   *
+   * @param {function(E): boolean} filterCallback Check if a listener's extra parameter matches a condition, if it does then it will be notified.
+   * @param {[T, T2, T3, T4, T5, T6, T7, T8, T9...]} args Arguments to call the event listeners with.
+   * @returns {R[]} An array with the values returned from the listeners.
+   * @memberof EventManager
+   */
+  filterDispatch(filterCallback, ...args) {
     return this._fire(this._filterListeners(filterCallback, false), args);
   }
 
+  /**
+   * Notify all event listeners.
+   *
+   * @param {[T, T2, T3, T4, T5, T6, T7, T8, T9...]} args Arguments to call the event listeners with.
+   * @returns {R[]} An array with the values returned from the listeners.
+   * @memberof EventManager
+   */
   dispatch(...args) {
     return this.fire(...args);
   }
@@ -229,8 +270,8 @@ export class EventManager extends EventSubscriber {
   /**
    * Notify all event listeners.
    *
-   * @param {[T,]} args Arguments to call the event listeners with.
-   * @returns {Array} An array with the values returned from the listeners.
+   * @param {[T, T2, T3, T4, T5, T6, T7, T8, T9...]} args Arguments to call the event listeners with.
+   * @returns {R[]} An array with the values returned from the listeners.
    * @memberof EventManager
    */
   fire(...args) {
@@ -264,9 +305,9 @@ export class EventManager extends EventSubscriber {
   /**
    * The listeners that are subscribed to this event.
    *
-   * @param {function(T,)[]} value Change the subscribed listeners to this array.
+   * @param {(function(T, T2, T3, T4, T5, T6, T7, T8, T9...): R)[]} value Change the subscribed listeners to this array.
    * @memberof EventManager
-   * @returns {function(T,)[]} An array of event listeners subscribed to this event.
+   * @returns {(function(T, T2, T3, T4, T5, T6, T7, T8, T9...): R)[]} An array of event listeners subscribed to this event.
    */
   get listeners() {
     return Array.from(this._listeners.values());
@@ -284,6 +325,7 @@ export class EventManager extends EventSubscriber {
   /**
    * An event that is triggered when the event listeners are changed. Args: manager, listener [optional], added [optional]
    * 
+   * @returns {EventSubscriber<EventManager<T, R, E, T2, T3, T4, T5, T6, T7, T8, T9>, any, any, null | function(T, T2, T3, T4, T5, T6, T7, T8, T9...): R, boolean>} The event.
    * @readonly
    * @memberof EventManager
    */
@@ -296,7 +338,7 @@ export class EventManager extends EventSubscriber {
   /**
    * 
    * 
-   * @returns {EventSubscriber<T>} A event subscriber that is connected to this manager.
+   * @returns {EventSubscriber<T, R, E, T2, T3, T4, T5, T6, T7, T8, T9>} An event subscriber that is connected to this manager.
    * @readonly
    * @memberof EventManager
    */
@@ -315,8 +357,8 @@ export class EventManager extends EventSubscriber {
  *
  * @export
  * @class PassthroughEventManager
- * @extends {EventManager<T>}
- * @template T
+ * @extends {EventManager<T, R, E, T2, T3, T4, T5, T6, T7, T8, T9>}
+ * @template T, R, E, T2, T3, T4, T5, T6, T7, T8, T9
  */
 export class PassthroughEventManager extends EventManager {
 
@@ -324,9 +366,9 @@ export class PassthroughEventManager extends EventManager {
    * Create an event that passes on data from another event.
    * 
    * @static
-   * @param {EventSubscriber | EventSubscriber[]} originalEvent The original event or an array of events that will all be listened to.
-   * @param {function} returnModifier Allows modifying the returned values. The first argument is an array with the values the listeners returned. The array returned by this function will be used instead. If a false value is returned it will be used as return value.
-   * @param {function([T,])} argumentModifier Modify the arguments passed to the listeners. The first arg is an array of the args that will be used. The array returned by this function will be used instead. If a false value is returned then the listeners will not be called.
+   * @param {EventSubscriber<T, R, E, T2, T3, T4, T5, T6, T7, T8, T9> | EventSubscriber<T, R, E, T2, T3, T4, T5, T6, T7, T8, T9>[]} originalEvent The original event or an array of events that will all be listened to.
+   * @param {function(R[]): null | R[]} returnModifier Allows modifying the returned values. The first argument is an array with the values the listeners returned. The array returned by this function will be used instead. If an array isn't returned then the return values will remain unmodified.
+   * @param {function([T, T2, T3, T4, T5, T6, T7, T8, T9...]): null | [T, T2, T3, T4, T5, T6, T7, T8, T9...]} argumentModifier Modify the arguments passed to the listeners. The first arg is an array of the args that will be used. The array returned by this function will be used instead. If a false value is returned then the listeners will not be called.
    * @memberof EventManager
    */
   constructor(originalEvent, returnModifier = null, argumentModifier = null) {
@@ -357,8 +399,8 @@ export class PassthroughEventManager extends EventManager {
   /**
    * Trigger the event but modify the arguments and the returned values.
    *
-   * @param {[T,]} args Arguments to modify and then use to call listeners.
-   * @returns {Array} Modified return values from listeners.
+   * @param {[T, T2, T3, T4, T5, T6, T7, T8, T9...]} args Arguments to modify and then use to call listeners.
+   * @returns {R[]} Modified return values from listeners.
    * @memberof PassthroughEventManager
    */
   fireWithModifiers(...args) {

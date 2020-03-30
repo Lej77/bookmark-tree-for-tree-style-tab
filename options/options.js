@@ -43,7 +43,16 @@ setRequiresPrefix('requires_');
 async function initiatePage() {
     setTextMessages();
 
-    bindCollapsableAreas();
+    const collapsableInfo = bindCollapsableAreas({
+        enabledCheck: [
+            { element: document.getElementById('contextMenuArea'), check: () => settings.hasRestoreTreeContextMenu || settings.hasMigrateContextMenu || settings.hasTabContextMenu || settings.hasTSTContextMenu || settings.hasMTHContextMenu },
+            { element: document.getElementById('contextMenu_restoreTree_Area'), check: () => settings.hasRestoreTreeContextMenu },
+            { element: document.getElementById('contextMenu_migrateTreeData_Area'), check: () => settings.hasMigrateContextMenu },
+            { element: document.getElementById('contextMenu_bookmarkTreeData_Area'), check: () => settings.hasTabContextMenu },
+            { element: document.getElementById('contextMenu_bookmarkTreeData_TST_Area'), check: () => settings.hasTSTContextMenu },
+            { element: document.getElementById('contextMenu_bookmarkTreeData_MTH_Area'), check: () => settings.hasMTHContextMenu },
+        ],
+    });
     const checkRequired = bindDependantSettings();
 
     const shortcuts = createShortcutsArea({
@@ -60,6 +69,7 @@ async function initiatePage() {
     document.getElementById('commandsArea').appendChild(shortcuts.area);
 
     await settingsTracker.start;
+    collapsableInfo.checkAll();
 
     const boundSettings = bindElementIdsToSettings(settings, {
         handleInputEvent: ({ key, value, element }) => {
@@ -81,6 +91,9 @@ async function initiatePage() {
     };
     handleLoad();
 
+    settingsTracker.onChange.addListener((changes) => {
+        collapsableInfo.checkAll();
+    });
 
     document.getElementById('resetSettingsButton').addEventListener('click', async (e) => {
         let ok = confirm(browser.i18n.getMessage('options_resetSettings_Prompt'));

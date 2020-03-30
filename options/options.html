@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="support-dark-theme">
 
 <head>
   <meta charset="utf-8">
@@ -8,48 +8,173 @@
 
 <body>
   <div>
-    <div class="sectionArea">
+    <div id="contextMenuArea" class="sectionArea">
       <header class="message_options_section_ContextMenuActive"></header>
-      <label>
-        <input id="hasTabContextMenu" type="checkbox">
-        <text class="message_options_hasTabContextMenu"></text>
-      </label>
-      <br />
-      <br />
-      <label>
-        <input id="hasTSTContextMenu" type="checkbox">
-        <text class="message_options_hasTSTContextMenu"></text>
-      </label>
-      <br />
-      <br />
-      <label>
-        <input id="hasMTHContextMenu" type="checkbox">
-        <text class="message_options_hasMTHContextMenu"></text>
-      </label>
-    </div>
-    <br />
 
-    <div class="sectionArea">
-      <header class="message_options_section_ContextMenuLabels"></header>
+      <text class="message_options_contextMenu_RightClickTip textSelectable"></text>
+      <br />
+      <br />
+
+      <text class="message_options_contextMenu_NonFolderBookmarkTip textSelectable"></text>
+      <br />
+      <br />
+      <br />
+
       <div>
-        <label class="message_options_customTSTContextMenuLabel"></label>
-        <input id="customTSTContextMenuLabel" type="text">
+        <label class="message_options_customTopLevelBookmarkContextMenuLabel"></label>
+        <input id="customTopLevelBookmarkContextMenuLabel" type="text">
       </div>
       <br />
-      <div>
-        <label class="message_options_customMTHContextMenuLabel"></label>
-        <input id="customMTHContextMenuLabel" type="text">
-      </div>
       <br />
-      <div>
-        <label class="message_options_customRestoreTreeContextMenuLabel"></label>
-        <input id="customRestoreTreeContextMenuLabel" type="text">
+
+      <div id="contextMenu_restoreTree_Area" class="sectionArea collapsed">
+        <header class="message_options_contextMenu_RestoreTree"></header>
+        <label>
+          <input id="hasRestoreTreeContextMenu" type="checkbox">
+          <text class="message_options_hasRestoreTreeContextMenu"></text>
+        </label>
+        <br />
+        <br />
+        <div>
+          <label class="message_options_customRestoreTreeContextMenuLabel"></label>
+          <input id="customRestoreTreeContextMenuLabel" type="text">
+        </div>
       </div>
-      <br />
-      <div>
-        <label class="message_options_customBookmarkTreeContextMenuLabel"></label>
-        <input id="customBookmarkTreeContextMenuLabel" type="text">
+
+      <div id="contextMenu_migrateTreeData_Area" class="sectionArea collapsed">
+        <header class="message_options_contextMenu_MigrateTreeData"></header>
+
+        <div class="area">
+          <label>
+            <input id="hasMigrateContextMenu" type="checkbox">
+            <text class="message_options_hasMigrateContextMenu"></text>
+          </label>
+          <br />
+          <br />
+          <div>
+            <label class="message_options_customMigrateContextMenuLabel"></label>
+            <input id="customMigrateContextMenuLabel" type="text">
+          </div>
+        </div>
+        <br />
+        <br />
+
+        <fieldset class="bookmarkFormat">
+          <legend class="message_options_migrateTreeData_fromBookmarkFormat_legend"></legend>
+          <text class="message_options_migrateTreeData_fromBookmarkFormat"></text>
+          <select id="migrateTreeData_fromBookmarkFormat">
+            <option value="bookmarkSeparators" class="message_options_bookmarkFormat_bookmarkSeparators"></option>
+            <option value="bookmarkFolders" class="message_options_bookmarkFormat_bookmarkFolders"></option>
+            <option value="bookmarkTitles" class="message_options_bookmarkFormat_bookmarkTitles"></option>
+            <option value="auto" class="message_options_bookmarkFormat_auto"></option>
+          </select>
+          <div class="textSelectable">
+            <p data-required-value="bookmarkSeparators" class="requires_migrateTreeData_fromBookmarkFormat">
+              <text class="message_options_bookmarkFormat_bookmarkSeparators"></text><text
+                class="message_options_bookmarkFormat_info_bookmarkSeparators"></text>
+            </p>
+            <p data-required-value="bookmarkFolders" class="requires_migrateTreeData_fromBookmarkFormat">
+              <text class="message_options_bookmarkFormat_bookmarkFolders"></text><text
+                class="message_options_bookmarkFormat_info_bookmarkFolders"></text>
+            </p>
+            <p data-required-value="bookmarkTitles" class="requires_migrateTreeData_fromBookmarkFormat">
+              <text class="message_options_bookmarkFormat_bookmarkTitles"></text><text
+                class="message_options_bookmarkFormat_info_bookmarkTitles"></text>
+            </p>
+            <p data-required-value="auto" class="requires_migrateTreeData_fromBookmarkFormat">
+              <text class="message_options_bookmarkFormat_auto"></text><text
+                class="message_options_bookmarkFormat_info_auto"></text>
+            </p>
+          </div>
+        </fieldset>
+        <br />
+
+        <fieldset class="bookmarkFormat">
+          <legend class="message_options_migrateTreeData_toBookmarkFormat_legend"></legend>
+          <text class="message_options_migrateTreeData_toBookmarkFormat"></text>
+          <select id="migrateTreeData_toBookmarkFormat">
+            <option value="bookmarkSeparators" class="message_options_bookmarkFormat_bookmarkSeparators"></option>
+            <option value="bookmarkFolders" class="message_options_bookmarkFormat_bookmarkFolders"></option>
+            <option value="bookmarkTitles" class="message_options_bookmarkFormat_bookmarkTitles"></option>
+          </select>
+          <div class="textSelectable">
+            <p data-required-value="bookmarkSeparators" class="requires_migrateTreeData_toBookmarkFormat">
+              <text class="message_options_bookmarkFormat_bookmarkSeparators"></text><text
+                class="message_options_bookmarkFormat_info_bookmarkSeparators"></text>
+            </p>
+            <p data-required-value="bookmarkFolders" class="requires_migrateTreeData_toBookmarkFormat">
+              <text class="message_options_bookmarkFormat_bookmarkFolders"></text><text
+                class="message_options_bookmarkFormat_info_bookmarkFolders"></text>
+            </p>
+            <p data-required-value="bookmarkTitles" class="requires_migrateTreeData_toBookmarkFormat">
+              <text class="message_options_bookmarkFormat_bookmarkTitles"></text><text
+                class="message_options_bookmarkFormat_info_bookmarkTitles"></text>
+            </p>
+          </div>
+        </fieldset>
+        <br />
+
+        <div class="area">
+          <div>
+            <label class="message_options_migrateTreeData_removeSuffix"></label>
+            <input id="migrateTreeData_removeSuffix" type="text">
+          </div>
+          <br />
+          <div>
+            <label class="message_options_migrateTreeData_addSuffix"></label>
+            <input id="migrateTreeData_addSuffix" type="text">
+          </div>
+          <br />
+          <label>
+            <input id="migrateTreeData_onlyAddSuffixIfSuffixWasRemoved" type="checkbox">
+            <text class="message_options_migrateTreeData_onlyAddSuffixIfSuffixWasRemoved"></text>
+          </label>
+          <br />
+        </div>
       </div>
+
+      <div id="contextMenu_bookmarkTreeData_Area" class="sectionArea collapsed">
+        <header class="message_options_contextMenu_BookmarkTreeData"></header>
+        <label>
+          <input id="hasTabContextMenu" type="checkbox">
+          <text class="message_options_hasTabContextMenu"></text>
+        </label>
+        <br />
+        <br />
+        <div>
+          <label class="message_options_customBookmarkTreeContextMenuLabel"></label>
+          <input id="customBookmarkTreeContextMenuLabel" type="text">
+        </div>
+      </div>
+
+      <div id="contextMenu_bookmarkTreeData_TST_Area" class="sectionArea collapsed">
+        <header class="message_options_contextMenu_BookmarkTreeData_TST"></header>
+        <label>
+          <input id="hasTSTContextMenu" type="checkbox">
+          <text class="message_options_hasTSTContextMenu"></text>
+        </label>
+        <br />
+        <br />
+        <div>
+          <label class="message_options_customTSTContextMenuLabel"></label>
+          <input id="customTSTContextMenuLabel" type="text">
+        </div>
+      </div>
+
+      <div id="contextMenu_bookmarkTreeData_MTH_Area" class="sectionArea collapsed">
+        <header class="message_options_contextMenu_BookmarkTreeData_MTH"></header>
+        <label>
+          <input id="hasMTHContextMenu" type="checkbox">
+          <text class="message_options_hasMTHContextMenu"></text>
+        </label>
+        <br />
+        <br />
+        <div>
+          <label class="message_options_customMTHContextMenuLabel"></label>
+          <input id="customMTHContextMenuLabel" type="text">
+        </div>
+      </div>
+
     </div>
     <br />
 
@@ -63,16 +188,45 @@
         <input id="bookmarkSuffix" type="text">
       </div>
       <br />
-      <label>
-        <input id="bookmarkTreeWithSeparators" type="checkbox">
-        <text class="message_options_bookmarkTreeWithSeparators"></text>
-      </label>
+      <fieldset class="bookmarkFormat">
+        <legend class="message_options_bookmarkFormat_legend"></legend>
+        <text class="message_options_bookmarkTreeWithBookmarkFormat"></text>
+        <select id="bookmarkTreeWithBookmarkFormat">
+          <option value="bookmarkSeparators" class="message_options_bookmarkFormat_bookmarkSeparators"></option>
+          <option value="bookmarkFolders" class="message_options_bookmarkFormat_bookmarkFolders"></option>
+          <option value="bookmarkTitles" class="message_options_bookmarkFormat_bookmarkTitles"></option>
+        </select>
+        <div class="textSelectable">
+          <p data-required-value="bookmarkSeparators" class="requires_bookmarkTreeWithBookmarkFormat">
+            <text class="message_options_bookmarkFormat_bookmarkSeparators"></text><text
+              class="message_options_bookmarkFormat_info_bookmarkSeparators"></text>
+          </p>
+          <p data-required-value="bookmarkFolders" class="requires_bookmarkTreeWithBookmarkFormat">
+            <text class="message_options_bookmarkFormat_bookmarkFolders"></text><text
+              class="message_options_bookmarkFormat_info_bookmarkFolders"></text>
+          </p>
+          <p data-required-value="bookmarkTitles" class="requires_bookmarkTreeWithBookmarkFormat">
+            <text class="message_options_bookmarkFormat_bookmarkTitles"></text><text
+              class="message_options_bookmarkFormat_info_bookmarkTitles"></text>
+          </p>
+          <br />
+          <p class="message_options_bookmarkTreeWithBookmarkFormat_warning"></p>
+        </div>
+      </fieldset>
       <br />
       <br />
-      <label>
-        <input id="bookmarkGroupTabsWithLegacyURL" type="checkbox">
-        <text class="message_options_bookmarkGroupTabsWithLegacyURL"></text>
-      </label>
+      <div class="area">
+        <label>
+          <input id="bookmarkGroupTabsWithLegacyURL" type="checkbox">
+          <text class="message_options_bookmarkGroupTabsWithLegacyURL"></text>
+        </label>
+        <br />
+        <br />
+        <label class="requires_bookmarkGroupTabsWithLegacyURL">
+          <input id="bookmarkGroupTabsWithLegacyURL_NewerFallbackURL" type="checkbox">
+          <text class="message_options_bookmarkGroupTabsWithLegacyURL_NewerFallbackURL"></text>
+        </label>
+      </div>
       <p>
         <span class="message_options_warnWhenBookmarkingMoreThan"></span>
         <input id="warnWhenBookmarkingMoreThan" type="number" min="-1">
@@ -137,10 +291,36 @@
       <br />
       <br />
       <br />
-      <label>
-        <input id="allowSeparatorsWhenRestoringTree" type="checkbox">
-        <text class="message_options_allowSeparatorsWhenRestoringTree"></text>
-      </label>
+      <fieldset class="bookmarkFormat">
+        <legend class="message_options_bookmarkFormat_legend"></legend>
+        <text class="message_options_restoreTreeWithBookmarkFormat"></text>
+        <select id="restoreTreeWithBookmarkFormat">
+          <option value="bookmarkSeparators" class="message_options_bookmarkFormat_bookmarkSeparators"></option>
+          <option value="bookmarkFolders" class="message_options_bookmarkFormat_bookmarkFolders"></option>
+          <option value="bookmarkTitles" class="message_options_bookmarkFormat_bookmarkTitles"></option>
+          <option value="auto" class="message_options_bookmarkFormat_auto"></option>
+        </select>
+        <div class="textSelectable">
+          <p data-required-value="bookmarkSeparators" class="requires_restoreTreeWithBookmarkFormat">
+            <text class="message_options_bookmarkFormat_bookmarkSeparators"></text><text
+              class="message_options_bookmarkFormat_info_bookmarkSeparators"></text>
+          </p>
+          <p data-required-value="bookmarkFolders" class="requires_restoreTreeWithBookmarkFormat">
+            <text class="message_options_bookmarkFormat_bookmarkFolders"></text><text
+              class="message_options_bookmarkFormat_info_bookmarkFolders"></text>
+          </p>
+          <p data-required-value="bookmarkTitles" class="requires_restoreTreeWithBookmarkFormat">
+            <text class="message_options_bookmarkFormat_bookmarkTitles"></text><text
+              class="message_options_bookmarkFormat_info_bookmarkTitles"></text>
+          </p>
+          <p data-required-value="auto" class="requires_restoreTreeWithBookmarkFormat">
+            <text class="message_options_bookmarkFormat_auto"></text><text
+              class="message_options_bookmarkFormat_info_auto"></text>
+          </p>
+          <br />
+          <p class="message_options_restoreTreeWithBookmarkFormat_warning"></p>
+        </div>
+      </fieldset>
       <br />
       <br />
       <label>

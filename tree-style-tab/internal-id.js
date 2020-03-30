@@ -127,6 +127,11 @@ export async function getInternalTSTId({ allowCached = true, searchOpenTabs = tr
                             if (!url) {
                                 // We don't have "tabs" permission from Tree Style Tab's options page so get the tab from Firefox instead.
                                 const firefoxTab = await browser.tabs.get(tstTab.id);
+                                if (!('url' in firefoxTab)) {
+                                    // Can't get "tabs" info from Firefox or Tree Style Tab => can't determine Tree Style Tab's internal id.
+                                    console.warn('Don\'t have "tabs" permission so can\'t determine Tree Style Tab\'s internal id.');
+                                    return null;
+                                }
                                 url = firefoxTab.url;
                             }
                             const groupURLInfo = getGroupTabInfo(url);
@@ -152,14 +157,13 @@ export async function getInternalTSTId({ allowCached = true, searchOpenTabs = tr
 
             let groupTabOpened = null;
             const onCreate = async (createdTab) => {
-                console.log(createdTab);
                 if (!createdTab || createdTab.windowId !== tempTab.windowId)
                     return;
 
                 // Wait for the URL to change from 'about:blank'.
                 await delay(500);
 
-                if (createdTab.url) {
+                if ('url' in createdTab) {
                     // Has "tabs" permission:
                     createdTab = await browser.tabs.get(createdTab.id);
                 } else {
@@ -171,8 +175,19 @@ export async function getInternalTSTId({ allowCached = true, searchOpenTabs = tr
                             tab: createdTab.id,
                         });
                         if (!createdTab) return;
+                        if (!('url' in createdTab)) {
+                            // Don't have "tabs" permission from Tree Style Tab's option page and don't have "tabs" permission from Firefox => can't determine Tree Style Tab's internal id.
+                            console.warn('Don\'t have "tabs" permission so can\'t determine Tree Style Tab\'s internal id.');
+                            if (groupTabOpened)
+                                groupTabOpened(null);
+                            return;
+                        }
                     } catch (error) {
                         console.error('Failed to get tab info from TST.\nError:', error);
+
+                        // Don't have "tabs" permission from Firefox and Tree Style Tab is not enabled => can't determine Tree Style Tab's internal id.
+                        if (groupTabOpened)
+                            groupTabOpened(null);
                     }
                 }
                 const groupURLInfo = getGroupTabInfo(createdTab.url);
@@ -243,9 +258,10 @@ export async function getInternalTSTId({ allowCached = true, searchOpenTabs = tr
  * Get the URL for Tree Style Tab's sidebar page.
  *
  * @export
- * @param {string} internalId The internal id for Tree Style Tab.
- * @returns {string} The URL for Tree Style Tab's sidebar page.
+ * @param {string|null} internalId The internal id for Tree Style Tab.
+ * @returns {string|null} The URL for Tree Style Tab's sidebar page. Will be `null` if `internalId` was `null`.
  */
 export function getSidebarURL(internalId) {
-    return 'moz-extension://' + internalId + '/sidebar/sidebar.html';
+    if (!internalId) return null;
+    else return 'moz-extension://' + internalId + '/sidebar/sidebar.html';
 }

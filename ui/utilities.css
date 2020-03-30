@@ -1,5 +1,20 @@
 /* #region Global */
 
+@media (prefers-color-scheme: dark) {
+    :root.support-dark-theme body {
+        background: #202023;
+        color: white;
+    }
+    :root.support-dark-theme select,
+    :root.support-dark-theme input,
+    :root.support-dark-theme textarea {
+        background: hsl(240, 2%, 25%);
+        border-color: transparent;
+        color: var(--in-content-text-color);
+    }
+}
+
+
 .textSelectable {
     -moz-user-select: text;
 }
@@ -15,6 +30,11 @@
 .area {
     border: 1px solid black;
     border-radius: 5px;
+}
+@media (prefers-color-scheme: dark) {
+    :root.support-dark-theme .area {
+        border-color: white;
+    }
 }
 .area:not(.noPadding) {
     padding: 10px;

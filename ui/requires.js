@@ -5,11 +5,16 @@ import {
 
 
 export let requiresPrefix = 'requires_';
+export let requiredValueAttribute = 'data-required-value';
 export const disabledClass = 'disabled-due-to-dependent-value';
 export const requiresAnyClass = 'requiresAny';
 
 export function setRequiresPrefix(value) {
     requiresPrefix = value;
+}
+
+export function setRequiredValueAttribute(value) {
+    requiredValueAttribute = value;
 }
 
 export function bindDependantSettings() {
@@ -37,6 +42,8 @@ export function bindDependantSettings() {
                     inverted = true;
                 }
 
+                let requiredValue = ele.getAttribute(requiredValueAttribute);
+
                 const requiredElement = document.getElementById(requireId);
                 let obj = {
                     listener: (e) => {
@@ -49,9 +56,22 @@ export function bindDependantSettings() {
                         let enabled = false;
                         if (requiredElement.type === 'checkbox') {
                             enabled = requiredElement.checked;
+                            if (requiredValue) {
+                                enabled = requiredValue == enabled;
+                            }
                         } else if (requiredElement.type === 'number') {
                             let value = parseInt(requiredElement.value);
-                            enabled = !isNaN(value) && value >= 0;
+                            if (requiredValue != null) {
+                                if (requiredValue == 'NaN') {
+                                    enabled = isNaN(value);
+                                } else {
+                                    enabled = !isNaN(value) && value == requiredValue;
+                                }
+                            } else {
+                                enabled = !isNaN(value) && value >= 0;
+                            }
+                        } else if (requiredValue != null) {
+                            enabled = requiredElement.value == requiredValue;
                         }
                         if (inverted) {
                             enabled = !enabled;

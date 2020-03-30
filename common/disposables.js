@@ -266,7 +266,7 @@ export class DisposableCreators {
   /**
    * Handle a disposable object returned from a callback.
    * 
-   * @param {function() : null | IDisposable | IDisposable[]} createCallback A callback that returns a disposable object. The first arg is a Boolean that is true if the callback was delayed.
+   * @param {function(boolean) : null | IDisposable | IDisposable[]} createCallback A callback that returns a disposable object. The first arg is a Boolean that is `true` if the callback was delayed, otherwise it is `false`.
    * @memberof DisposableCreators
    */
   createDisposable(createCallback) {

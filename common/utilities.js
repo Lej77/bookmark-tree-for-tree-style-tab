@@ -126,43 +126,46 @@ export function defineProperty(obj, propertyName, get, set) {
 /**
  * Copy an object by serializing and then deserializing it with JSON.
  * 
- * @param {Object} value Object to copy.
- * @returns {Object} A copy of the provided object.
+ * @template T
+ * @param {T} value Value to copy.
+ * @returns {T} A copy of the provided value.
  */
 export function deepCopy(value) {
   if (!value) {
     return value;
   }
-  if (typeof value === 'string') {
-    return value;
+  switch (typeof value) {
+    case 'string':
+    case "boolean":
+    case "bigint":
+    case "function":
+    case "number":
+    case "undefined":
+      return value;
+
+    default:
+      return JSON.parse(JSON.stringify(value));
   }
-  let jsonCopy = JSON.parse(JSON.stringify(value));
-  return jsonCopy;
 }
 
 /**
- * Compare two object by serializing them to JSON.
+ * Compare two object by serializing them to JSON. Can also handle other types of values.
  * 
  * @param {Object} a The first object.
  * @param {Object} b The second object.
- * @returns {boolean} If they are equal
+ * @returns {boolean} `true` if they are equal; otherwise `false`.
  */
 export function deepCopyCompare(a, b) {
-  if (a === b) {
-    return true;
-  }
-  if (!a && !b) {
-    return a === b;
-  }
-  if (!a || !b) {
-    return false;
-  }
-  let aString = typeof a === 'string';
-  let bString = typeof b === 'string';
-  if (aString && bString) {
-    return a === b;
-  } else if (aString || bString) {
-    return false;
-  }
+  if (a === b) return true;
+  // The only way the two values can be equal after the above check is if they are both objects.  
+
+  // `null` counts as an `object` so remove that possibility:
+  if (!a || !b) return false;
+
+  // Check so that both values are objects:
+  if (typeof a !== 'object') return false;
+  if (typeof b !== 'object') return false;
+  
+  // Compare both objects via JSON serialization:
   return JSON.stringify(a) === JSON.stringify(b);
 }

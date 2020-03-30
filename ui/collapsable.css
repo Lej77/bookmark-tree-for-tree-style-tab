@@ -13,6 +13,19 @@
     background-color: hsl(0, 0%, 100%);
     overflow: hidden;
 }
+@media (prefers-color-scheme: dark) {
+    :root.support-dark-theme {
+        --collapsable-border: 1px solid hsl(0, 0%, 50%);
+        --collapsable-header-border: 1px solid hsl(0, 0%, 40%);
+    }
+    :root.support-dark-theme .section {
+        background: #202023;
+    }
+    :root.support-dark-theme .section > .headerArea {
+        background-color: hsl(120, 0%, 20%);
+    }
+}
+
 .section > .headerArea {
     min-height: 30px;
     padding-top: 0px;
@@ -67,6 +80,12 @@
     opacity: 0.15;
     border: 2px solid hsl(230, 3%, 10%);
 }
+@media (prefers-color-scheme: dark) {
+    :root.support-dark-theme .section > .headerArea:focus .hoverIndicator::after {
+        opacity: 0.20;
+        border: 2px solid hsl(230, 3%, 100%);
+    }
+}
 .section > .headerArea:focus .hoverIndicator:not(:hover)::after,
 .section > .headerArea.preventOpen:focus .hoverIndicator::after {
     background-color: transparent;
@@ -89,6 +108,18 @@
 }
 .enablable.enabled.error {
     background-color: hsl(60, 80%, 90%) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root.support-dark-theme .enablable {
+        background-color: hsl(120, 80%, 20%) !important;
+    }
+    :root.support-dark-theme .enablable:not(.enabled) {
+        background-color: hsl(0, 80%, 20%) !important;
+    }
+    :root.support-dark-theme .enablable.enabled.error {
+        background-color: hsl(60, 80%, 20%) !important;
+    }
 }
 
 /* #endregion Enabled */
@@ -148,6 +179,12 @@
 .section:not(.noShadow) {
     box-shadow: 1px 1px 4px -1px;
 }
+@media (prefers-color-scheme: dark) {
+    :root.support-dark-theme .section:not(.noShadow) {
+        box-shadow: unset;
+    }
+}
+
 .section > .headerArea:not(.noFontChanges) {
     font-size: 20px;
 }
