@@ -216,7 +216,7 @@
         "hash": "fb5b7f410ee3d77734a84db555c77b63"
     },
     "options_bookmarkGroupTabsWithLegacyURL_NewerFallbackURL": {
-        "message": "使用在 Tree Style Tab v3.1.6 中引进的 “ext+treestyletab:group” 这一 全新的自定义分组标签页 URI 以替代旧版的 “about:treestyletab-group” 这一传统 URI 。",
+        "message": "使用在 Tree Style Tab v3.1.6 中引进的 “ext+treestyletab:group” 这一全新的自定义分组标签页 URI 以替代旧版的 “about:treestyletab-group” 这一传统 URI 。",
         "hash": "7952ecbb6fac2096db4ef9778f351f6b"
     },
     "options_fixGroupTabURLsOnRestore": {
