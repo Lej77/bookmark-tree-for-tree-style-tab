@@ -4,19 +4,55 @@
         "hash": "bc84d67a17295dc7030e144f2d976297"
     },
     "options_section_CreateBookmark": {
-        "message": "从标签页创建到书签",
+        "message": "从标签页创建书签项",
         "hash": "9977682842f21162e34cd5ae0f46052b"
     },
     "options_section_CreateTabs": {
-        "message": "从书签创建到标签页",
+        "message": "从书签项创建标签页",
         "hash": "feb1b848616b18905395d61ffd41cb76"
     },
     "options_section_TreeStyleTabId": {
         "message": "Tree Style Tab 的内部 id",
         "hash": "1bdabdf6cb26fd0ca6bc61408ebfb13f"
     },
+    "options_contextMenu_RestoreTree": {
+        "message": "还原标签树",
+        "hash": "7488c40cdfb50a0f92bf1a53d4600b68"
+    },
+    "options_contextMenu_MigrateTreeData": {
+        "message": "更改标签树数据格式",
+        "hash": "f98f1957dcb5ccc21f46472de987f5cc"
+    },
+    "options_contextMenu_BookmarkTreeData": {
+        "message": "将标签树数据加入书签",
+        "hash": "88dbea79f24f92e50c618f7f685f4b27"
+    },
+    "options_contextMenu_BookmarkTreeData_TST": {
+        "message": "将标签树数据加入书签（Tree Style Tab）（传统）",
+        "hash": "b61e01e25334ee4fb1359b824d9e01d9"
+    },
+    "options_contextMenu_BookmarkTreeData_MTH": {
+        "message": "将标签树数据加入书签（Multiple Tab Handler）（传统）",
+        "hash": "c96058f89baa5dc34294410ac3a2afad"
+    },
+    "options_contextMenu_RightClickTip": {
+        "message": "小提示：您可以右键点击或者中键点击上下文菜单项，如果此时打开有弹出窗口（比如书签工具栏按钮菜单），则该弹出窗口不会被关闭。",
+        "hash": "1e062c50d00705eab8a91ba374c05624"
+    },
+    "options_contextMenu_NonFolderBookmarkTip": {
+        "message": "小提示：书签上下文菜单项并非只会被用在文件夹上，它们还会被用于单个书签项。当被用于这样一个书签项上时，该书签项所在文件夹的标签树结构将会被解析出来，进而找出该书签项所在标签树。如果该书签项代表了一个子标签页，那么就会作用于其父项所在的标签树。这样就能够还原更小的标签树或者从一个较大的书签集合中分离出一个较小部分并对其进行重新保存。",
+        "hash": "e36f773cea39795dc66eec51f9af9b64"
+    },
+    "options_hasRestoreTreeContextMenu": {
+        "message": "显示用于书签项的上下文菜单项以便来还原标签树。",
+        "hash": "df82f7af067d63d307a20ae156c6c325"
+    },
+    "options_hasMigrateContextMenu": {
+        "message": "显示用于书签项的上下文菜单项以便来更改标签树数据格式。受到影响的书签项将会根据一个不同的标签树数据格式被保存到一个同级文件夹中。原有的书签项将不会被修改或者被移除。",
+        "hash": "3a4210fa58759b89cfe773cc75c22ddf"
+    },
     "options_hasTabContextMenu": {
-        "message": "为 Firefox 标签页显示上下文菜单项。",
+        "message": "显示用于 Firefox 标签页的上下文菜单项。",
         "hash": "f4128397076b52bc7b2c3707fd25966a"
     },
     "options_hasTSTContextMenu": {
@@ -24,7 +60,7 @@
         "hash": "40f45663157fd149cbaa2cfc61c8761e"
     },
     "options_hasMTHContextMenu": {
-        "message": "为 Multiple Tab Handler 选中项显示上下文菜单项。（用到了 Firefox 64 以及更高版本中的 Firefox 标签页选项。）",
+        "message": "显示用于 Multiple Tab Handler 选中项的上下文菜单项。（用到了 Firefox 64 以及更高版本中的 Firefox 标签页选项。）",
         "hash": "4d7fbd272e6b2cbc6373ea74da84dca0"
     },
     "options_customTSTContextMenuLabel": {
@@ -39,9 +75,17 @@
         "message": "自定义 “还原标签树” 上下文菜单项的标签（在字母之前放置一个 “&” 符号将会使该字母被用作该项的键盘快捷方式）（留空代表使用默认标签）：",
         "hash": "0907f06178d9f338cfd1c1cbde4f1653"
     },
+    "options_customMigrateContextMenuLabel": {
+        "message": "自定义 “更改标签树数据格式” 上下文菜单项的标签（在字母之前放置一个 “&” 符号将会使该字母被用作该项的键盘快捷方式）（留空代表使用默认标签）：",
+        "hash": "dff0fa1ca19172785d025868bc80fc6c"
+    },
     "options_customBookmarkTreeContextMenuLabel": {
         "message": "自定义位于 Firefox 标签页上的 “将标签树加入书签” 上下文菜单项的标签（在字母之前放置一个 “&” 符号将会使该字母被用作该项的键盘快捷方式）（留空代表使用默认标签）：",
         "hash": "1132770c3f73601d19a9a75d8b70fc35"
+    },
+    "options_customTopLevelBookmarkContextMenuLabel": {
+        "message": "自定义用于顶层上下文菜单项的标签（如果存在有多个书签上下文菜单项）（在字母之前放置一个 “&” 符号将会使该字母被用作该项的键盘快捷方式）（留空代表使用默认标签）：",
+        "hash": "10b54fb317424e1a9781cb057007d5d0"
     },
     "options_bookmarkSuffix": {
         "message": "对于保存有 Tree Style Tab 数据的那些书签文件夹，这里的文本会被附加到它们标题的末尾：",
@@ -60,7 +104,7 @@
         "hash": "8764b81b03b30c5b729f931277c7b4d7"
     },
     "options_setParentAfterTabCreate": {
-        "message": "在标签页被打开后还原其标签树结构数据。",
+        "message": "在标签页被打开后还原其标签树数据。",
         "hash": "bc58950998984fc0e75a71db9c73d9f5"
     },
     "options_openAsDiscardedTabs": {
@@ -87,24 +131,108 @@
         "message": "在该延迟后分离那些错误的父项（-1 代表）禁用：",
         "hash": "cef3132d045ed5f99265fb07af2f90f8"
     },
+    "options_migrateTreeData_removeSuffix": {
+        "message": "在创建一个同级文件夹时，来自原有书签文件夹标题中的该后缀将会被忽略：",
+        "hash": "f8bb8257ebd0ae9963fd734125a04616"
+    },
+    "options_migrateTreeData_addSuffix": {
+        "message": "该文本会被附加到新创建的书签文件夹的标题之后：",
+        "hash": "bd6214ca6474376a971ae2581dfcee35"
+    },
+    "options_migrateTreeData_onlyAddSuffixIfSuffixWasRemoved": {
+        "message": "仅当原有书签文件夹中含有会被忽略的后缀时，才会在新创建的书签文件夹上添加后缀。",
+        "hash": "c71a75b0e79adad45e7f39217b7445e4"
+    },
+    "options_migrateTreeData_fromBookmarkFormat_legend": {
+        "message": "标签树数据源格式",
+        "hash": "739f43e4825dce8b42bfeb02a4ec7db2"
+    },
+    "options_migrateTreeData_fromBookmarkFormat": {
+        "message": "指定从原有书签项中解析标签树数据的解析方式：",
+        "hash": "446864d9bc71acc76cb1ede80322fca8"
+    },
+    "options_migrateTreeData_toBookmarkFormat_legend": {
+        "message": "标签树数据目标格式",
+        "hash": "97c69184fca1c118ef0709ecf73c2ba9"
+    },
+    "options_migrateTreeData_toBookmarkFormat": {
+        "message": "指定在创建新书签项时标签树数据的存储方式：",
+        "hash": "c23beb4e9bfb15e654cf2dcf551245e6"
+    },
+    "options_bookmarkTreeWithBookmarkFormat": {
+        "message": "指定在将标签树保存到书签项时标签树数据的存储方式：",
+        "hash": "c798fd99952a7bf2f7e632cd023fa6c1"
+    },
+    "options_bookmarkTreeWithBookmarkFormat_warning": {
+        "message": "请注意：如果您更改了此设置，那么请记得同时更改关于从书签项解析标签树数据的解析方式的设置以保持一致。",
+        "hash": "04a0d50118af4fee8eba10fb748b1244"
+    },
+    "options_restoreTreeWithBookmarkFormat": {
+        "message": "指定在从书签项还原标签树时标签树数据的解析方式：",
+        "hash": "9e3542f000cc752bb13271de37aa2af8"
+    },
+    "options_restoreTreeWithBookmarkFormat_warning": {
+        "message": "请注意：如果您更改了此设置，那么请记得同时更改关于标签树数据保存方式的设置以保持一致。",
+        "hash": "3f512ff318fdaee4fb7caac385a28eab"
+    },
+    "options_bookmarkFormat_legend": {
+        "message": "标签树数据格式",
+        "hash": "52261a108d4d9607533ff7abfa923544"
+    },
+    "options_bookmarkFormat_bookmarkSeparators": {
+        "message": "书签分割条",
+        "hash": "7342d8b7567b805d0259529f610899d9"
+    },
+    "options_bookmarkFormat_info_bookmarkSeparators": {
+        "message": "：此格式使用书签分割条来存储标签树信息。如果一个书签项前有奇数个分割条，则表明该书签项是一个父标签页。在这样一个标签页之后的书签项会被视作其子项。连续一对书签分割条则会降低位于该点之后的书签项的标签树层级。",
+        "hash": "e76fed785d99d6c84388b982d20533b2"
+    },
+    "options_bookmarkFormat_bookmarkFolders": {
+        "message": "书签文件夹",
+        "hash": "ea30f2deff6991bd36af2f845760ce45"
+    },
+    "options_bookmarkFormat_info_bookmarkFolders": {
+        "message": "：此格式使用书签文件夹来存储标签树信息。书签文件夹中的第一个书签项代表父标签，而位于该文件夹中的其余书签项则是该父标签页的子标签页。如果该书签文件夹中的第一项还是一个文件夹，那么这些书签项会被视作顶层标签页。",
+        "hash": "39498b786a239267bbfe1cde45611643"
+    },
+    "options_bookmarkFormat_bookmarkTitles": {
+        "message": "书签标题",
+        "hash": "ba3d73d5e4334f272f4feef678513cf1"
+    },
+    "options_bookmarkFormat_info_bookmarkTitles": {
+        "message": "：此格式会把标签树数据存储在书签项标题的前缀中，这也是 Tree Style Tab v3.2.0 以及更高版本所采用的格式（更早的版本根本无法存储标签树数据）。",
+        "hash": "b48449dfbc21f5ca254f5f177ac9c56d"
+    },
+    "options_bookmarkFormat_auto": {
+        "message": "自动检测",
+        "hash": "1002ba89016e32f71017f4befbb032b5"
+    },
+    "options_bookmarkFormat_info_auto": {
+        "message": "：尝试从需要被还原到标签页的书签项中自动检测标签树数据格式。",
+        "hash": "6dc201c33498057de881205ff70334ec"
+    },
     "options_bookmarkGroupTabsWithLegacyURL": {
-        "message": "将带有传统网址 “about:treestyletab-group” 的 Tree Style Tab 分组标签页加入书签。这意味着，即使 Tree Style Tab 的内部 id 被更改，它们也会被正确打开。",
-        "hash": "fe06397e533bd5ef9425c061abea28a9"
+        "message": "将带有 “about:treestyletab-group” 这一传统 URI 的 Tree Style Tab 分组标签页加入书签。这意味着，即使 Tree Style Tab 的内部 id 被更改，它们也会被正确打开。",
+        "hash": "fb5b7f410ee3d77734a84db555c77b63"
+    },
+    "options_bookmarkGroupTabsWithLegacyURL_NewerFallbackURL": {
+        "message": "使用在 Tree Style Tab v3.1.6 中引进的 “ext+treestyletab:group” 这一全新的自定义分组标签页 URI 以替代旧版的 “about:treestyletab-group” 这一传统 URI 。",
+        "hash": "7952ecbb6fac2096db4ef9778f351f6b"
     },
     "options_fixGroupTabURLsOnRestore": {
-        "message": "修复 Tree Style Tab 分组标签页的网址。允许打开带有传统网址 “about:treestyletab-group” 的分组标签页，以及使用了错误的 Tree Style Tab 内部 id 的分组标签页书签。",
-        "hash": "5044ccea783bb106172facb128a60d23"
+        "message": "修复 Tree Style Tab 分组标签页的网址。这样就能够打开带有 “about:treestyletab-group” 这一传统 URI 的分组标签页，以及使用了错误的 Tree Style Tab 内部 id 的分组标签页书签项。",
+        "hash": "37ac4cd67725657b975792e41ed69eb4"
     },
     "options_treeStyleTabInternalId": {
         "message": "缓存的 Tree Style Tab 内部 id（用于修复分组标签页）：",
         "hash": "b58869985cb9580280400875f40949dc"
     },
     "options_warnWhenBookmarkingMoreThan": {
-        "message": "在尝试添加的书签数量超过该值时发出警告（-1 代表禁用）：",
+        "message": "在尝试添加的书签项数量超过该值时发出警告（-1 代表禁用）：",
         "hash": "e2acbab15f6771371dd90ff042c690d2"
     },
     "options_warnWhenRestoringMoreThan": {
-        "message": "在尝试还原的书签数量超过该值时发出警告（-1 代表禁用）：",
+        "message": "在尝试还原的书签项数量超过该值时发出警告（-1 代表禁用）：",
         "hash": "175d2b05a8c7c2058bebe52aebc3d3e9"
     },
     "options_TST_InternalId_Reset": {
@@ -143,6 +271,10 @@
         "message": "请输入文本来表示一个键盘快捷键。比如 “Alt+X”",
         "hash": "2b60e52f0d530f4e64cb067e788ce50f"
     },
+    "contextMenu_BookmarkTopLevelDefaultLabel": {
+        "message": "将 TST 标签树加入书签",
+        "hash": "001ffee13b5a4e4f293fdef94eae44e6"
+    },
     "contextMenu_TreeStyleTabAndMTH": {
         "message": "将标签树数据加入书签(&E)",
         "hash": "1ac902d2a3b8255d381c6759a94e5762"
@@ -155,6 +287,10 @@
         "message": "将标签树数据加入书签",
         "hash": "88dbea79f24f92e50c618f7f685f4b27"
     },
+    "contextMenu_MigrateTreeData": {
+        "message": "更改标签树数据格式",
+        "hash": "f98f1957dcb5ccc21f46472de987f5cc"
+    },
     "bookmark_MultipleTabsTitle": {
         "message": "$firstTitle$ 以及更多",
         "placeholders": {
@@ -166,23 +302,29 @@
         "message": " [TST]",
         "hash": "ddec7aefa3b9163ff157f7d654bfd3db"
     },
+    "bookmark_DefaultMigrationSuffix": {
+        "message": " [已迁移] [TST]",
+        "hash": "82d525ae59aa62e406adc70d7106ba80"
+    },
     "notifications_BookmarkTree_Confirm_Title": {
         "message": "您真的想要将这些标签页加入书签吗？",
         "hash": "3b59f0a6cac1a6311ab8eb0f7a3f26d6"
     },
     "notifications_BookmarkTree_Confirm_Message": {
         "message": "您真的想要将这 $count$ 个标签页加入书签吗？如果是的话，请在此通知上点击，否则请关闭它。",
+        "description": "Note that this will be shown in a notification and they have a maximum number of character that will be shown. If the message is too long the message will be cut of early.",
         "placeholders": {
             "count": { "content": "$1" }
         },
         "hash": "a82eae33595b6928d73bd5c1969a9c42"
     },
     "notifications_RestoreTree_Confirm_Title": {
-        "message": "您真的想要打开这些书签吗？",
+        "message": "您真的想要打开这些书签项吗？",
         "hash": "718a9c46913e3f52c40be87eed5eb0fc"
     },
     "notifications_RestoreTree_Confirm_Message": {
-        "message": "您真的想要打开这 $count$ 个书签吗？如果是的话，请在此通知上点击，否则请关闭它。",
+        "message": "您真的想要打开这 $count$ 个书签项吗？如果是的话，请在此通知上点击，否则请关闭它。",
+        "description": "Note that this will be shown in a notification and they have a maximum number of character that will be shown. If the message is too long the message will be cut of early.",
         "placeholders": {
             "count": { "content": "$1" }
         },
