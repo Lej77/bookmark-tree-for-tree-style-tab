@@ -35,13 +35,42 @@ import {
     delay,
 } from '../common/delays.js';
 
+import {
+    createPrivacyPermissionArea
+} from '../ui/common.js';
+
 
 setMessagePrefix('message_');
 setRequiresPrefix('requires_');
 
 
+{
+    let embedded = true;
+    try {
+        embedded = new URLSearchParams(window.location.search).get('embedded') != 'false';
+    } catch (error) {
+        console.error('Failed to get page query params.\nError: ', error);
+    }
+    if (embedded) {
+        document.documentElement.classList.add('embeddedInExtensionPage');
+    }
+}
+
+
 async function initiatePage() {
+    // Set placeholders using i18n messages:
+    for (const element of Array.from(document.querySelectorAll('input[data-placeholder-message][type="text"]'))) {
+        (/** @type {HTMLInputElement} */ (element)).placeholder = browser.i18n.getMessage(element.getAttribute('data-placeholder-message'));
+    }
+
+    // Set text content using i18n messages:
     setTextMessages();
+
+
+    // Link to separate option page:
+    (/** @type{HTMLAnchorElement} */(document.getElementById('topLinkToOptionsPage'))).href =
+        browser.runtime.getURL(browser.runtime.getManifest().options_ui.page + '?embedded=false');
+
 
     const collapsableInfo = bindCollapsableAreas({
         enabledCheck: [
@@ -67,6 +96,9 @@ async function initiatePage() {
         promptButtonMessage: 'options_Commands_PromptButton',
     });
     document.getElementById('commandsArea').appendChild(shortcuts.area);
+
+    const privacyPermissions = createPrivacyPermissionArea({});
+    document.getElementById('privacyPermissionsArea').appendChild(privacyPermissions.area);
 
     await settingsTracker.start;
     collapsableInfo.checkAll();
@@ -96,7 +128,7 @@ async function initiatePage() {
     });
 
     document.getElementById('resetSettingsButton').addEventListener('click', async (e) => {
-        let ok = confirm(browser.i18n.getMessage('options_resetSettings_Prompt'));
+        const ok = confirm(browser.i18n.getMessage('options_resetSettings_Prompt'));
         if (!ok) {
             return;
         }
@@ -117,15 +149,15 @@ async function initiatePage() {
     document.getElementById('TST_InternalId_ResetButton').addEventListener('click', (e) => {
         browser.storage.local.remove('treeStyleTabInternalId');
     });
-    document.getElementById('TST_InternalId_UpdateButton').addEventListener('click', (e) => {
-        let fromGroupTab = getInternalTSTId(
+    document.getElementById('TST_InternalId_UpdateButton').addEventListener('click', async (e) => {
+        const fromGroupTab = await getInternalTSTId(
             {
                 allowCached: false,
                 searchOpenTabs: false,
                 openGroupTab: true,
             });
         if (!fromGroupTab) {
-            getInternalTSTId({
+            await getInternalTSTId({
                 allowCached: false,
                 searchOpenTabs: true,
                 openGroupTab: false,

@@ -1,4 +1,4 @@
-
+'use strict';
 
 import {
     DisposableCollection,
@@ -26,6 +26,16 @@ import {
 /**
  * @typedef {import('../background/tree-info-node.js').BookmarkFormat} BookmarkFormat
  */
+
+
+/** The values that the `type` property can have for this extension's internal messages. */
+export const messageTypes = Object.freeze({
+    /** Event sent when privacy info changed. */
+    privacyPermissionChanged: 'privacyPermissionChanged',
+    /** Get privacy info from background page. */
+    privacyPermission: 'privacyPermission',
+});
+
 
 
 // #region Settings
@@ -117,6 +127,10 @@ export function getDefaultSettings() {
         // #endregion Warnings
 
 
+        /** Open a popup when misconfigured privacy permissions are detected. */
+        warnAboutMisconfiguredPrivacySettings: true,
+
+
         /** Cached internal id for Tree Style Tab. */
         treeStyleTabInternalId: null,
     };
@@ -129,13 +143,13 @@ export function getDefaultSettings() {
  * @template T
  * @param {T} settings The settings to migrate. These should preferably be without defaults added since those might have changed.
  * @param {string} previousVersion The version of the extension that the settings come from.
- * @returns {T} An object with values that should be changed for `settings`. Keys with `undefined` as value should be removed from the original settings.
+ * @returns {Partial<T>} An object with values that should be changed for `settings`. Keys with `undefined` as value should be removed from the original settings.
  */
 export function migrateSettings(settings, previousVersion) {
     const [major, minor] = previousVersion.split('.').map(v => parseInt(v));
 
     /** Determine if a specific version of the extension is affected by a legacy settings.
-     * 
+     *
      * @param {string} lastAffectedVersion The last version (inclusive) of this extension that needs to have its settings changed to a new format.
      * @returns {boolean} `true` if the settings are affected by a legacy setting and needs to be updated.
      */
@@ -148,7 +162,9 @@ export function migrateSettings(settings, previousVersion) {
         }
     };
 
-    /** Changes that should be applied to the current settings. */
+    /** Changes that should be applied to the current settings.
+     * @type {Partial<T>}
+    */
     const changes = {};
     const set = (key, value) => {
         changes[key] = value;
@@ -156,9 +172,9 @@ export function migrateSettings(settings, previousVersion) {
     const remove = (key) => {
         changes[key] = undefined;
     };
-    /** Get a key's value. 
-     * 
-     * Note: this will **not** use the `getDefaultSettings` function for fallback values.
+    /** Get a key's value.
+     *
+     * Note: this will **not** use the `getDefaultSettings` function for fallback values. This is good since those fallback values might be different then the ones in the legacy version.
      * @param {string} key The key to lookup a value for.
      * @param {any} defaultValue A default value to return if the key didn't exist.
      * @returns {any} The value for the provided key.
@@ -199,6 +215,19 @@ export function migrateSettings(settings, previousVersion) {
 export const settingsTracker = new SettingsTracker({ defaultValues: getDefaultSettings });
 export const settings = settingsTracker.settings;
 
+// eslint-disable-next-line valid-jsdoc
+/**
+ * Load a specific setting as fast as possible.
+ *
+ * @template {keyof ReturnType<typeof getDefaultSettings>} K
+ * @param {K} key The key of the setting that should be loaded.
+ * @returns {Promise<(ReturnType<typeof getDefaultSettings>[K])>} The value for the loaded setting.
+ */
+export function quickLoadSetting(key) {
+    // @ts-ignore
+    return SettingsTracker.get(key, getDefaultSettings()[key]);
+}
+
 // #endregion Settings
 
 
@@ -207,17 +236,30 @@ export const settings = settingsTracker.settings;
 
 const trackedDelays = new DisposableCollection();
 
+/**
+ * A delay that can be cancelled if the user's settings are changed.
+ *
+ * @export
+ * @param {number} timeInMilliseconds The time in milliseconds to wait before resolving the returned promise.
+ * @returns {Promise<boolean>} A promise that will be resolved to `true` if the delay completed or `false` if the delay was cancelled.
+ */
 export async function trackedDelay(timeInMilliseconds) {
     if (timeInMilliseconds < 0) {
-        return;
+        return true;
     }
     if (timeInMilliseconds < 50) {
+        // We don't really need to worry about canceling short delays and hopefully this should have less overhead.
         await delay(timeInMilliseconds);
         return true;
     }
-    return boundDelay(timeInMilliseconds, trackedDelays);
+    return await boundDelay(timeInMilliseconds, trackedDelays);
 }
 
+/**
+ * Cancel all pending delays created via `trackedDelay`. This is useful in case the user specified a really long delay in a setting and wanted to cancel all operations depending on that setting.
+ *
+ * @export
+ */
 export function cancelAllTrackedDelays() {
     trackedDelays.stop();
 }

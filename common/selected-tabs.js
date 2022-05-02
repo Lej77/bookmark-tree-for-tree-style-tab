@@ -12,12 +12,12 @@ null;
 
 /**
  * Get the selected tabs in a specific window. If no window id is provided the current window will be used.
- * 
+ *
  * This will attempt to use the new multi-select WebExtensions API that is supported in Firefox 64 and later. 
  * If that fails it will attempt to check if any tabs are selected in Multiple Tab Handler.
- * 
+ *
  * If multiple tabs aren't selected it will return the provided tab or the active tab in the provided window.
- * 
+ *
  * @param {Object} [Config] Configuration for the operation.
  * @param {number} [Config.majorBrowserVersion] The browsers major version.
  * @param {null | number} [Config.windowId] The id for window to get tabs from. If `null` then use window id from `tab` or if `tab` isn't provided then get tabs from the current window.
@@ -32,7 +32,7 @@ export async function getSelectedTabs({ majorBrowserVersion = 0, windowId = null
     }
 
     // Configure Tabs Query:
-    let details = { highlighted: true };
+    const details = { highlighted: true };
     if (windowId !== null) {
         details.windowId = windowId;
     } else {
@@ -40,7 +40,7 @@ export async function getSelectedTabs({ majorBrowserVersion = 0, windowId = null
     }
 
     // Attempt Tabs Query:
-    
+
     /** @type {BrowserTab[]} */
     let tabs = [];
     try {
@@ -52,8 +52,8 @@ export async function getSelectedTabs({ majorBrowserVersion = 0, windowId = null
     if (majorBrowserVersion < 64 && tabs.length <= 1) {
         try {
             // Attempt to get multi-selected tabs from Multiple Tab Handler:
-            var selectionInfo = await getSelection();
-            let selection = selectionInfo.selected;
+            const selectionInfo = await getSelection();
+            const selection = selectionInfo.selected;
 
             if (selection.length > 0) {
                 if (windowId === null) {

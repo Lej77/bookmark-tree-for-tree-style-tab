@@ -35,7 +35,7 @@ null;
 /** @type {null | string} */
 let gCache = null;
 
-/** @type {null | EventManager<CachedTSTInternalIdChangedInfo>} */
+/** @type {null | EventManager<[CachedTSTInternalIdChangedInfo]>} */
 let gCacheChanged = null;
 
 function setInternalIdCache_Internal(value, manually = false) {
@@ -72,7 +72,7 @@ export function setInternalIdCache(value) {
  * Get an `EventSubscriber` that is invoked whenever the cached internal id for Tree Style Tab is changed.
  *
  * @export
- * @returns {EventSubscriber<CachedTSTInternalIdChangedInfo>} An `EventSubscriber` where listeners are notified with `{oldValue: null | string, newValue: null | string, manually: boolean}`.
+ * @returns {EventSubscriber<[CachedTSTInternalIdChangedInfo]>} An `EventSubscriber` where listeners are notified with `{oldValue: null | string, newValue: null | string, manually: boolean}`.
  */
 export function getInternalIdCacheChanged() {
     if (!gCacheChanged) {
@@ -86,11 +86,11 @@ let gCurrentOperation = null;
 
 /**
  * Use Group tab URLs to get Tree Style Tab's internal id.
- * 
- * @param {Object} Options Determines what methods are allowed for finding Tree Style Tab's id.
- * @param {boolean} Options.allowCached Get id from cache if available.
- * @param {boolean} Options.searchOpenTabs If id is not cached then search open tabs for a TST tab that contains the internal id in its URL.
- * @param {boolean} Options.openGroupTab If id is not cached then open a TST group tab that contains the internal id in its URL.
+ *
+ * @param {Object} [Options] Determines what methods are allowed for finding Tree Style Tab's id.
+ * @param {boolean} [Options.allowCached] Get id from cache if available.
+ * @param {boolean} [Options.searchOpenTabs] If id is not cached then search open tabs for a TST tab that contains the internal id in its URL.
+ * @param {boolean} [Options.openGroupTab] If id is not cached then open a TST group tab that contains the internal id in its URL.
  * @returns {Promise<string>} Tree Style Tab's internal id.
  */
 export async function getInternalTSTId({ allowCached = true, searchOpenTabs = true, openGroupTab = true } = {}) {
@@ -155,6 +155,7 @@ export async function getInternalTSTId({ allowCached = true, searchOpenTabs = tr
         if (openGroupTab && !internalId) {
             let tempTab;
 
+            /** @type {null | function(any): void} */
             let groupTabOpened = null;
             const onCreate = async (createdTab) => {
                 if (!createdTab || createdTab.windowId !== tempTab.windowId)
@@ -209,7 +210,8 @@ export async function getInternalTSTId({ allowCached = true, searchOpenTabs = tr
                         type: 'group-tabs',
                         tabs: [tempTab.id]
                     }).then(async (groupTab) => {
-                        let url = groupTab && groupTab.url;
+                        if (!groupTab) return groupTabOpenWaiter;
+                        let url = groupTab.url;
                         if (!url) {
                             const firefoxTab = await browser.tabs.get(groupTab.id);
                             url = firefoxTab.url;
@@ -231,7 +233,7 @@ export async function getInternalTSTId({ allowCached = true, searchOpenTabs = tr
                 }
             } finally {
                 if (groupTabOpened) {
-                    groupTabOpened();   // Cancel waiter promise.
+                    groupTabOpened(null);   // Cancel waiter promise.
                 }
                 browser.tabs.onCreated.removeListener(onCreate);
                 if (tempTab) {

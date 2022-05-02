@@ -40,7 +40,7 @@ let gOnShown = null;
 /**
  * Get an `EventSubscriber` for the `browser.notifications.onClicked` event.
  *
- * @returns {EventSubscriber<NotificationId>} A subscriber for the event.
+ * @returns {EventSubscriber<[NotificationId]>} A subscriber for the event.
  */
 export function getOnNotificationClicked() {
     if (!gOnClicked) {
@@ -51,7 +51,7 @@ export function getOnNotificationClicked() {
 /**
  * Get an `EventSubscriber` for the `browser.notifications.onClosed` event.
  *
- * @returns {EventSubscriber<NotificationId>} A subscriber for the event.
+ * @returns {EventSubscriber<[NotificationId]>} A subscriber for the event.
  */
 export function getOnNotificationClosed() {
     if (!gOnClosed) {
@@ -62,7 +62,7 @@ export function getOnNotificationClosed() {
 /**
  * Get an `EventSubscriber` for the `browser.notifications.onShown` event.
  *
- * @returns {EventSubscriber<NotificationId>} A subscriber for the event.
+ * @returns {EventSubscriber<[NotificationId]>} A subscriber for the event.
  */
 export function getOnNotificationShown() {
     if (!gOnShown) {
@@ -72,7 +72,7 @@ export function getOnNotificationShown() {
 }
 
 /**
- * Close an open notification. 
+ * Close an open notification.
  *
  * @export
  * @param {NotificationId} id The ID of the notification to close.
@@ -148,7 +148,7 @@ export async function confirmWithNotification({ id = null, title, message, iconU
 
 /**
  * @typedef {BasicNotificationOptions & ExtraNotificationConstructorOptions} NotificationConstructorArgs Configuration for a notification that should be tracked.
- * 
+ *
  * @typedef ExtraNotificationConstructorOptions
  * @property {boolean} [Config.trackShown] `true` to track when the notification is shown.
  */
@@ -168,7 +168,7 @@ export class Notification {
      * @export
      * @param {NotificationConstructorArgs} Options Configuration for the shown notification.
      */
-    constructor({ id = null, title, message, iconUrl = null, trackShown = true } = {}) {
+    constructor({ id = null, title, message, iconUrl = null, trackShown = true }) {
         if (!id || typeof id !== 'string') id = null;
         this._id = id;
         this._options = { id, title, message, iconUrl };

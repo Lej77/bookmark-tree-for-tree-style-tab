@@ -6,11 +6,11 @@ export const kTST_GROUP_URL = 'ext+treestyletab:group';
 
 /**
  * @typedef {Object} GroupTabInfo
- * @property {string|null} Info.name The title of the group tab.
- * @property {boolean|undefined} Info.temporary Indicates if the group tab is temporary.
- * @property {string|null} Info.internalId The internal id for Tree Style Tab. If this is `null` then the group tab uses the legacy group tab URL.
- * @property {string|null} Info.urlArguments All arguments that should be suffixed to the group tab URL.
- * @property {boolean} Info.newFallbackURL `true` if the web extension fallback URL is used instead of the legacy group tab URL.
+ * @property {string|null} [Info.name] The title of the group tab.
+ * @property {boolean|undefined} [Info.temporary] Indicates if the group tab is temporary.
+ * @property {string|null} [Info.internalId] The internal id for Tree Style Tab. If this is `null` then the group tab uses the legacy group tab URL.
+ * @property {string|null} [Info.urlArguments] All arguments that should be suffixed to the group tab URL.
+ * @property {boolean} [Info.newFallbackURL] `true` if the web extension fallback URL is used instead of the legacy group tab URL.
  */
 null;
 

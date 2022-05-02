@@ -18,11 +18,19 @@ import {
     trackedDelay,
 } from '../common/common.js';
 
+
+/**
+ * @typedef {import('../tree-style-tab/utilities.js').TSTTab} TSTTab
+ */
+/**
+ * @typedef {import('../common/utilities.js').BrowserTab} BrowserTab
+ */
+
 /**
  * A bookmark object returned by the WebExtension API.
- * 
+ *
  * An object of type `bookmarks.BookmarkTreeNode` represents a node in the bookmark tree, where each node is a bookmark, a bookmark folder, or a separator. Child nodes are ordered by an index within their respective parent folders.
- * 
+ *
  * @typedef {Object} BookmarkTreeNode
  * @property {BookmarkTreeNode[]} [children] An array of `bookmarks.BookmarkTreeNode` objects which represent the node's children. The list is ordered in the list in which the children appear in the user interface. This field is omitted if the node isn't a folder.
  * @property {number} [dateAdded] A number representing the creation date of the node in milliseconds since the epoch.
@@ -33,28 +41,28 @@ import {
  * @property {string} title A string which contains the text displayed for the node in menus and lists of bookmarks.
  * @property {BookmarkTreeNodeType} [type] A bookmarks.BookmarkTreeNodeType object indicating whether this is a bookmark, a folder, or a separator. Defaults to "bookmark" unless url is omitted, in which case it defaults to "folder".
  * @property {BookmarkTreeNodeUnmodifiable} [unmodifiable] A string as described by the type `bookmarks.BookmarkTreeNodeUnmodifiable`. Represents the reason that the node can't be changed. If the node can be changed, this is omitted.
- * @property {string} [url] A string which represents the URL for the bookmark. If the node represents a folder, this property is omitted. 
+ * @property {string} [url] A string which represents the URL for the bookmark. If the node represents a folder, this property is omitted.
  */
 null;
 
 /**
  * The `bookmarks.BookmarkTreeNodeUnmodifiable` type is used to indicate the reason that a node in the bookmark tree (where each node is either a bookmark or a bookmark folder) cannot be changed. This is used as the value of the `bookmarks.BookmarkTreeNode.unmodifiable.unmodifiable` field on bookmark nodes.
- * 
+ *
  * # Type
- * 
+ *
  * `bookmarks.BookmarkTreeNodeUnmodifiable` is a `string` which can currently have only one value: `"managed"`. This indicates that the bookmark node was configured by an administrator or by the custodian of a supervised user (such as a parent, in the case of parental controls).
- * 
+ *
  * @typedef {'managed'} BookmarkTreeNodeUnmodifiable
  */
 null;
 
 /**
  * The `bookmarks.BookmarkTreeNodeType` type is used to describe whether a node in the bookmark tree is a bookmark, a folder, or a separator.
- * 
+ *
  * # Type
- * 
+ *
  * `bookmarks.BookmarkTreeNodeType` is a `string` which can have one of the following three values:
- * 
+ *
  * - `"bookmark"`: the node is a bookmark.
  * - `"folder"`: the node is a folder.
  * - `"separator"`: the node is a separator.
@@ -63,28 +71,52 @@ null;
  */
 null;
 
+/**
+ * This is how instances are stored for each `TreeInfoNode`.
+ *
+ * @typedef { { [instanceType in (TreeInfoNode.instanceTypes[keyof TreeInfoNode.instanceTypes])]?: { [instanceId in InstancesTypeMap[instanceType]['key']]: InstancesTypeMap[instanceType]['value'] } } } Instances
+ */
+null;
+/**
+ * The type of keys and values for a specific instance type.
+ *
+ * @template K
+ * @template T
+ * @typedef { { key: K, value: T } } InstanceTypeMapEntry
+ */
+null;
+/**
+ * The types that are represented by different instances of a `TreeInfoNode`
+ *
+ * @typedef { { bookmark: InstanceTypeMapEntry<string, BookmarkTreeNode>, tab: InstanceTypeMapEntry<number, BrowserTab> } } InstancesTypeMap
+ */
+null;
+
 
 export class TreeInfoNode {
 
     /**
      * Creates an instance of TreeInfoNode.
-     * 
+     *
      * @param {Object} Params Parameters
-     * @param {string} Params.title The title of this node. This represents a tab's title or a bookmark's title.
-     * @param {string | null} Params.url The URL of this node. If `null` or empty then considered to be a folder.
-     * @param {TreeInfoNode[]} Params.children Child nodes of this node. If this node has a URL then the children will be child tabs of the current node's tab. Parent properties will be automatically updated.
-     * @param {TreeInfoNode | null} Params.parent The parent node of this node.
-     * @param {Object} Params.instances Instances where this node exists. This can be tab ids or bookmark ids. These will be used with the `addInstances` method.
+     * @param {string} [Params.title] The title of this node. This represents a tab's title or a bookmark's title.
+     * @param {string | null} [Params.url] The URL of this node. If `null` or empty then considered to be a folder.
+     * @param {TreeInfoNode[]} [Params.children] Child nodes of this node. If this node has a URL then the children will be child tabs of the current node's tab. Parent properties will be automatically updated.
+     * @param {TreeInfoNode | null} [Params.parent] The parent node of this node.
+     * @param {Instances} [Params.instances] Instances where this node exists. This can be tab ids or bookmark ids. These will be used with the `addInstances` method.
      * @memberof TreeInfoNode
      */
-    constructor({ title, url = null, children = [], parent = null, instances = {} } = {}) {
-        Object.assign(this, {
-            _title: title || '',
-            _url: url || '',
-            _children: [],
-            _parent: null,
-            _instances: {},
-        });
+    constructor({ title = null, url = null, children = [], parent = null, instances = {} } = {}) {
+        /** @type {string} */
+        this._title = title || '';
+        /** @type {string} */
+        this._url = url || '';
+        /** @type {TreeInfoNode[]} */
+        this._children = [];
+        /** @type {TreeInfoNode | null} */
+        this._parent = null;
+        /** @type {Instances} */
+        this._instances = {};
 
         this.addInstances(instances);
 
@@ -95,6 +127,11 @@ export class TreeInfoNode {
 
     // #region Node Relationships
 
+    /**
+     * Add some node(s) as children of this node.
+     *
+     * @param {TreeInfoNode[] | TreeInfoNode} nodes Nodes to add as children.
+     */
     addChildren(nodes) {
         if (!nodes) {
             return;
@@ -107,7 +144,7 @@ export class TreeInfoNode {
             return;
         }
 
-        for (let node of nodes) {
+        for (const node of nodes) {
             if (node === this) {
                 continue;
             }
@@ -127,6 +164,12 @@ export class TreeInfoNode {
         }
     }
 
+    /**
+     * Remove child node(s).
+     *
+     * @param {TreeInfoNode | TreeInfoNode[]} nodes Child node(s) to remove.
+     * @memberof TreeInfoNode
+     */
     removeChildren(nodes) {
         if (!nodes) {
             return;
@@ -139,7 +182,7 @@ export class TreeInfoNode {
             return;
         }
 
-        for (let node of nodes) {
+        for (const node of nodes) {
             let index;
             do {
                 index = this._children.indexOf(node);
@@ -156,6 +199,13 @@ export class TreeInfoNode {
     }
 
 
+    /**
+     * Insert child node(s) at a specified index.
+     *
+     * @param {number} index The index to insert the nodes at.
+     * @param {TreeInfoNode | TreeInfoNode[]} nodes The node(s) to insert.
+     * @memberof TreeInfoNode
+     */
     insertChildren(index, nodes) {
         if (!nodes) {
             return;
@@ -170,7 +220,7 @@ export class TreeInfoNode {
 
         this.addChildren(nodes);
         for (let iii = 0; iii < nodes.length; iii++) {
-            let node = nodes[iii];
+            const node = nodes[iii];
             let first = true;
             while (true) {
                 let index = this._children.indexOf(node);
@@ -222,28 +272,58 @@ export class TreeInfoNode {
 
     // #region Instances
 
+    // eslint-disable-next-line valid-jsdoc
+    /**
+     * Add an instance id that represents this node.
+     *
+     * @template { (keyof Instances) } T
+     * @template {keyof Instances[T]} K
+     * @param {T} type The type of the instance.
+     * @param {K} id The id of the instance.
+     * @param {Instances[T][K]} instance The instance itself. Could be nothing if we just want to store an id.
+     * @memberof TreeInfoNode
+     */
     addInstance(type, id, instance) {
-        let idInstanceLookup = {};
+        /** @type {Object} */
+        const idInstanceLookup = {};
         idInstanceLookup[id] = instance;
-        let obj = {};
+        /** @type {Object} */
+        const obj = {};
         obj[type] = idInstanceLookup;
         this.addInstances(obj);
     }
 
+    // eslint-disable-next-line valid-jsdoc
+    /**
+     * Remove an instance id that represents this node.
+     *
+     * @template { (keyof Instances) } T
+     * @param {T} type The type of the instance.
+     * @param {keyof Instances[T]} id The id of the instance.
+     * @memberof TreeInfoNode
+     */
     removeInstance(type, id) {
-        let instances = {};
+        /** @type {Object} */
+        const instances = {};
         instances[type] = [id];
         this.removeInstances(instances);
     }
 
 
+    // eslint-disable-next-line valid-jsdoc
+    /**
+     * Add instances that represents this node.
+     *
+     * @param {Instances} instances Instances to add.
+     * @memberof TreeInfoNode
+     */
     addInstances(instances) {
         if (!instances) {
             return;
         }
-        let allowedKeys = Object.values(TreeInfoNode.instanceTypes);
-        for (let [key, value] of Object.entries(instances)) {
-            if (!value || !allowedKeys.includes(key)) {
+        const allowedKeys = Object.values(TreeInfoNode.instanceTypes);
+        for (const [key, value] of Object.entries(instances)) {
+            if (!value || !allowedKeys.includes(/** @type {any} */(key))) {
                 continue;
             }
             if (!this._instances[key]) {
@@ -253,41 +333,71 @@ export class TreeInfoNode {
         }
     }
 
+    // eslint-disable-next-line valid-jsdoc
+    /**
+     * Remove instances that represents this node.
+     *
+     * @param { { [instanceType in keyof Instances]: ( { [instanceId: string]: InstancesTypeMap[instanceType]['value'] } | ((keyof Instances[instanceType])[]) ) } } instances Instances to remove.
+     * @memberof TreeInfoNode
+     */
     removeInstances(instances) {
         if (!instances) {
             return;
         }
-        for (let [key, value] of Object.entries(instances)) {
-            if (!value || !this._instances[key]) {
+        for (const [instanceType, instanceIdsToRemove] of Object.entries(instances)) {
+            if (!instanceIdsToRemove || !this._instances[instanceType]) {
                 continue;
             }
-            let instanceTypeIdValueLookup = this._instances[key];
-            let idsToRemove = Array.isArray(value) ? value : Object.keys(value);
+            const idsForThisInstanceType = this._instances[instanceType];
+            const idsToRemove = Array.isArray(instanceIdsToRemove) ? instanceIdsToRemove : Object.keys(instanceIdsToRemove);
 
-            for (let id of idsToRemove) {
-                delete instanceTypeIdValueLookup[id];
+            for (const id of idsToRemove) {
+                delete idsForThisInstanceType[id];
             }
 
-            if (Object.keys(instanceTypeIdValueLookup).length === 0) {
-                delete this._instances[key];
+            if (Object.keys(idsForThisInstanceType).length === 0) {
+                // If we removed last id for this instance type then remove the whole object.
+                delete this._instances[instanceType];
             }
         }
     }
 
+    /**
+     * All instances that this node represents.
+     *
+     * @readonly
+     * @memberof TreeInfoNode
+     */
     get instances() {
         return this._instances;
     }
 
 
+    /**
+     * Check if an instance represents this node.
+     *
+     * @param {string} idType The type of the instance.
+     * @param {string} id The unique id for the instance.
+     * @returns {boolean} `true` if the specified instance represents this node.
+     * @memberof TreeInfoNode
+     */
     checkInstanceId(idType, id) {
-        let typeLookup = this._instances[idType];
+        const typeLookup = this._instances[idType];
         return Boolean(typeLookup && typeLookup[id]);
     }
 
+    /**
+     * Search this node and all of its children for a node that represents a specific instance.
+     *
+     * @param {string} idType The type of the instance.
+     * @param {string} id The unique id for the instance that should be found.
+     * @returns {TreeInfoNode | null} A `TreeInfoNode` for the specified instance or `null` if no such node could be found.
+     * @memberof TreeInfoNode
+     */
     getNodeById(idType, id) {
-        let nodes = this.children.slice();
+        const nodes = this.children.slice();
         while (nodes.length > 0) {
-            let node = nodes.shift();
+            const node = nodes.shift();
             if (node.checkInstanceId(idType, id)) {
                 return node;
             }
@@ -343,7 +453,9 @@ export class TreeInfoNode {
 
         const parentLookup = new Map();
 
+        /** @type {TreeInfoNode[]} */
         const nodesToTest = [this];
+        /** @type {TreeInfoNode[]} */
         const allowedNodes = [this];
 
         while (nodesToTest.length > 0) {
@@ -408,7 +520,7 @@ export class TreeInfoNode {
     }
 
 
-    async convertGroupURL({ useLegacyURL, newFallbackURL = false, recursive = true } = {}) {
+    async convertGroupURL({ useLegacyURL = false, newFallbackURL = false, recursive = true } = {}) {
         const groupInfo = getGroupTabInfo(this.url);
         if (groupInfo) {
             this.url = getGroupTabURL({ internalId: (useLegacyURL ? null : await getInternalTSTId()), urlArguments: groupInfo.urlArguments, newFallbackURL });
@@ -461,6 +573,7 @@ export class TreeInfoNode {
     }
 
     get rootNode() {
+        /** @type {TreeInfoNode} */
         let node = this;
         while (node.parent) {
             node = node.parent;
@@ -489,6 +602,28 @@ export class TreeInfoNode {
     // #endregion Node meta info
 
 
+    /**
+     * Open tabs for this node and its children.
+     *
+     * @param {Object} Config Configure how the tabs should be opened.
+     * @param {any} [Config.handleParentId = null] TODO
+     * @param {any} [Config.handleParentLast = false] TODO
+     * @param {any} [Config.parentTabId = null] TODO
+     * @param {number | null} [Config.windowId = null] Window to open tabs in. `null` to open in the current window.
+     * @param {function(): number} [Config.delayAfterTabOpen = () => -1] Specify how long to wait after opening a tab (before opening another one). If the time is less then `0` then it is ignored.
+     * @param {function(): number} [Config.navigationOfOpenedTabDelay = () => -1] Specify that a tab should be opened first and then after a delay it should have its URL set to the wanted destination.
+     * @param {function(): number | boolean} [Config.detachIncorrectParentAfterDelay = () => -1] Make an attempt to detach incorrect parents after a delay. Specify a negative number or a false value to disable.
+     * @param {null | function(BrowserTab): Promise<boolean> | boolean} [Config.checkAllowedParent = null] A function that should return `true` for each tab that is allowed to have a parent. This can be used to detach from auto attached parent tabs. This only takes effect if `detachIncorrectParentAfterDelay` is enabled.
+     * @param {boolean} [Config.allowNonCreatedParent = false] TODO
+     * @param {any} [Config.createTempTab = false] TODO
+     * @param {any} [Config.tempTabURL = ''] TODO
+     * @param {any} [Config.groupUnderTempTab = false] TODO
+     * @param {any} [Config.focusPreviousTab = false] TODO
+     * @param {any} [Config.dontFocusOnNewTabs = false] TODO
+     * @param {any} [Config.openAsDiscardedTabs = false] TODO
+     * @returns {Promise<BrowserTab[]>} The browser tabs that were opened.
+     * @memberof TreeInfoNode
+     */
     async openAsTabs({
         handleParentId = null,
         handleParentLast = false,
@@ -509,7 +644,7 @@ export class TreeInfoNode {
 
         let previousActiveTab = null;
         if (focusPreviousTab) {
-            let previousDetails = {
+            const previousDetails = {
                 active: true,
             };
             if (windowId || windowId === 0) {
@@ -525,7 +660,7 @@ export class TreeInfoNode {
 
         let tempTab = null;
         if (createTempTab) {
-            let details = { active: true };
+            const details = { active: true };
             if (tempTabURL) {
                 details.url = tempTabURL;
             }
@@ -541,20 +676,24 @@ export class TreeInfoNode {
         }
 
 
+        /** @type {BrowserTab[]} Created tabs. */
         let tabs = [];
 
 
         // #region Fix incorrect relationship between created tabs
 
         if (!checkAllowedParent && allowNonCreatedParent) {
+            // Currently we only call `checkAllowedParent` for tabs that don't have a parent tab set.
             checkAllowedParent = async (tab) => {
-                let tstTab = await getTSTTabs(tab.id);
-                let { ancestorTabIds } = tstTab;
-                for (let ancestorTabId of ancestorTabIds) {
-                    if (tabs.some(aTab => aTab.id === ancestorTabId.id)) {
+                const tstTab = await getTSTTabs(tab.id);
+                for (const ancestorTabId of tstTab.ancestorTabIds) {
+                    // Check if this parent is allowed.
+                    if (tabs.some(aTab => aTab.id === ancestorTabId)) {
+                        // Somehow one of the created tabs became a parent of this tab, this wasn't desired so don't allow it:
                         return false;
                     }
                 }
+                // This tab can keep its parent tabs:
                 return true;
             };
         }
@@ -569,12 +708,12 @@ export class TreeInfoNode {
             callbacks = [];
             handleParentId = (tab, parentTabId) => {
                 callbacks.push(async () => {
-                    let details = {
+                    const details = {
                         type: 'attach',
                         parent: parentTabId,
                         child: tab.id,
                     };
-                    let index = tabs.indexOf(tab);
+                    const index = tabs.indexOf(tab);
                     if (index > 0) {
                         details.insertAfter = tabs[index - 1].id;
                     }
@@ -589,6 +728,7 @@ export class TreeInfoNode {
 
         // #region Create Tab
 
+        /** @type {BrowserTab} */
         let tab;
         try {
 
@@ -596,7 +736,8 @@ export class TreeInfoNode {
 
                 // #region Create Details
 
-                let createDetails = { url: this.url };
+                /** @type {Partial<BrowserTab>} */
+                const createDetails = { url: this.url };
 
                 let navigationDelay = navigationOfOpenedTabDelay();
                 let navigationURL = null;
@@ -652,8 +793,8 @@ export class TreeInfoNode {
                         try {
                             await browser.tabs.update(tab.id, { url: navigationURL });
                         } catch (error) {
-                            let lastURL = navigationURL;
-                            let newURL = `about:blank?${lastURL}`;
+                            const lastURL = navigationURL;
+                            const newURL = `about:blank?${lastURL}`;
                             console.log(`Failed to open "${lastURL}" open "${newURL}" instead.`);
                             await browser.tabs.update(tab.id, { url: newURL });
                         }
@@ -668,7 +809,7 @@ export class TreeInfoNode {
                 }
                 let shouldDetach = detachIncorrectParentAfterDelay();
                 if (!parentTabId && ((shouldDetach || shouldDetach === 0) && (shouldDetach === true || shouldDetach >= 0))) {
-                    let detach = async () => {
+                    const detach = async () => {
                         if (checkAllowedParent) {
                             if (await checkAllowedParent(tab)) {
                                 return;
@@ -698,7 +839,7 @@ export class TreeInfoNode {
 
         // #region Create Child Tabs
 
-        for (let node of this.children) {
+        for (const node of this.children) {
             const childTabs = await node.openAsTabs(
                 Object.assign({}, arguments[0], {
                     handleParentId,
@@ -723,7 +864,7 @@ export class TreeInfoNode {
 
 
         if (callbacks) {
-            for (let callback of callbacks) {
+            for (const callback of callbacks) {
                 await callback();
             }
         }
@@ -743,7 +884,7 @@ export class TreeInfoNode {
 
         if (tempTab) {
             if (groupUnderTempTab) {
-                for (let tab of tabs) {
+                for (const tab of tabs) {
                     if (tab.openerTabId !== tempTab.id) {
                         continue;
                     }
@@ -778,10 +919,10 @@ export class TreeInfoNode {
      * @param {boolean} [Params.inFolder=false] If at least one bookmark is created then ensure that all new bookmarks is placed in a new folder.
      * @param {boolean} [Params.recursive=true] Create bookmarks for child nodes as well as this node.
      * @param {number} [Params.parentCount=0] The number of parent nodes that the current node has.
-     * @returns {BookmarkTreeNode[]} Array of object with info about the bookmarks that were created directly in the specified bookmark folder.
+     * @returns {Promise<BookmarkTreeNode[]>} Array of object with info about the bookmarks that were created directly in the specified bookmark folder.
      * @memberof TreeInfoNode
      */
-    async saveAsBookmarks({ parentBookmarkId, format, folderSuffix = '', folderTitle = null, inFolder = false, recursive = true, parentCount = 0 } = {}) {
+    async saveAsBookmarks({ parentBookmarkId, format, folderSuffix = '', folderTitle = null, inFolder = false, recursive = true, parentCount = 0 }) {
         const bookmarkDetails = {};
         if (parentBookmarkId) {
             bookmarkDetails.parentId = parentBookmarkId;
@@ -919,12 +1060,22 @@ export class TreeInfoNode {
 
     // #region Static
 
+    /**
+     * Create `TreeInfoNode`s from browser tabs.
+     *
+     * @static
+     * @param {BrowserTab | BrowserTab[]} parentTabs Parent
+     * @param {Object} Config Configure how the tabs are parsed.
+     * @param {boolean} [Config.isTSTTab] specifies whether the provided parent tabs have Tree Style Tab info attached.
+     * @returns {Promise<TreeInfoNode[]>} `TreeInfoNode`s that were parsed from the browser tabs.
+     * @memberof TreeInfoNode
+     */
     static async createFromTabs(parentTabs, { isTSTTab = false } = {}) {
 
         // #region Argument checks
 
         if (!parentTabs) {
-            return null;
+            return [];
         }
         let single = false;
         if (!Array.isArray(parentTabs)) {
@@ -934,7 +1085,8 @@ export class TreeInfoNode {
         if (parentTabs.length === 0) {
             return [];
         }
-        const tstTabs = isTSTTab ? parentTabs : await getTSTTabs(parentTabs.map(tab => tab.id));
+        /** @type { TSTTab[] } */
+        const tstTabs = isTSTTab ? /** @type {TSTTab[]} */ (parentTabs) : await getTSTTabs(parentTabs.map(tab => tab.id));
 
         // #endregion Argument checks
 
@@ -1003,17 +1155,27 @@ export class TreeInfoNode {
     }
 
     /**
-     * Parse tree structure from bookmarks. 
+     * @typedef { XOR<ParseFromBookmarksViaIdParams, ParseFromBookmarksViaObjectParams> & ParseFromBookmarksCommonParams } ParseFromBookmarksParams Parameters to the `parseFromBookmarks` method.
+     *
+     * @typedef {Object} ParseFromBookmarksViaIdParams
+     * @property {string} Params.bookmarkId The id of the bookmark node that should be parsed.
+     *
+     * @typedef {Object} ParseFromBookmarksViaObjectParams
+     * @property {BookmarkTreeNode} Params.rootBookmark An object with data about the root bookmark.
+     *
+     * @typedef {Object} ParseFromBookmarksCommonParams
+     * @property {BookmarkFormat} Params.format A format that specifies how the bookmarks store tree information.
+    */
+
+    /**
+     * Parse tree structure from bookmarks.
      *
      * @static
-     * @param {Object} Params Parameters.
-     * @param {string} Params.bookmarkId The id of the bookmark node that should be parsed.
-     * @param {null | BookmarkTreeNode} [Params.rootBookmark] An object with data about the root bookmark.
-     * @param {string} Params.format A format that specifies how the bookmarks store tree information.
-     * @returns {null|TreeInfoNode} The parsed tree structure.
+     * @param {ParseFromBookmarksParams} Params Parameters.
+     * @returns {Promise<null|TreeInfoNode>} The parsed tree structure.
      * @memberof TreeInfoNode
      */
-    static async parseFromBookmarks({ bookmarkId, rootBookmark, format } = {}) {
+    static async parseFromBookmarks({ bookmarkId = null, rootBookmark = null, format }) {
         if (bookmarkId && (!rootBookmark || rootBookmark.id !== bookmarkId)) {
             rootBookmark = (await browser.bookmarks.getSubTree(bookmarkId))[0];
         }
@@ -1161,7 +1323,7 @@ export class TreeInfoNode {
      * @param {Object} Params Parameters
      * @param {BookmarkTreeNode} Params.rootBookmark A folder bookmark that should contain bookmarks that were saved with tree data.
      * @param {null | string[]} [Params.allowedFormats=null] Formats that can be guessed. `null` to guess between all formats.
-     * @returns {string} The bookmark format that was most likely used to save the tree data.
+     * @returns {BookmarkFormat} The bookmark format that was most likely used to save the tree data.
      * @memberof TreeInfoNode
      */
     static guessBookmarkFormat({ rootBookmark, allowedFormats = null }) {
@@ -1169,8 +1331,8 @@ export class TreeInfoNode {
             allowedFormats = Object.values(TreeInfoNode.bookmarkFormat);
         }
 
-        /** @type {Object<string, BookmarkFormatValidationInfo>} Key: format value. Value: format validation info. */
-        const reports = {};
+        /** @type { { [P in BookmarkFormat]: BookmarkFormatValidationInfo } } Key: format value. Value: format validation info. */
+        const reports = /** @type {{ [P in BookmarkFormat]: BookmarkFormatValidationInfo }} */ ({});
         for (const format of allowedFormats) {
             const validationReport = TreeInfoNode.validateBookmarkFormat({ rootBookmark, format });
             if (validationReport) {
@@ -1186,6 +1348,7 @@ export class TreeInfoNode {
         };
 
         let maxScore = 0;
+        /** @type {BookmarkFormat} */
         let maxScoredFormat = null;
 
         for (const [format, report] of Object.entries(reports)) {
@@ -1215,7 +1378,7 @@ export class TreeInfoNode {
 
             if (score > maxScore || maxScoredFormat === null) {
                 maxScore = score;
-                maxScoredFormat = format;
+                maxScoredFormat = /** @type {BookmarkFormat} */ (format);
             }
         }
 
@@ -1224,7 +1387,7 @@ export class TreeInfoNode {
 
     /**
      * Info about the validation of a specific format used to save tree data for bookmarks.
-     * 
+     *
      * @typedef {Object} BookmarkFormatValidationInfo
      * @property {Object<string, number>} Info.validated
      * @property {Object<string, number>} Info.warnings
@@ -1483,7 +1646,19 @@ export class TreeInfoNode {
 
 }
 TreeInfoNode.instanceTypes = Object.freeze({
+    /**
+     * A node represented as a browser bookmark.
+     *
+     *  @type {'bookmark'}
+     */
+    // @ts-ignore
     bookmark: 'bookmark',
+    /**
+     * A node represented as a browser tab.
+     *
+     *  @type {'tab'}
+    */
+    // @ts-ignore
     tab: 'tab',
 });
 
@@ -1493,33 +1668,42 @@ TreeInfoNode.instanceTypes = Object.freeze({
  */
 TreeInfoNode.bookmarkFormat = Object.freeze({
     /**
-     * This format uses bookmark folders to store tree information. 
-     * 
-     * The first bookmark in a bookmark folder represents the parent tab and the rest of 
-     * the bookmarks in the folder are child tabs of that parent tab. If the first item in 
-     * the bookmark folder is a bookmark folder then the bookmarks will be interpreted as 
+     * This format uses bookmark folders to store tree information.
+     *
+     * The first bookmark in a bookmark folder represents the parent tab and the rest of
+     * the bookmarks in the folder are child tabs of that parent tab. If the first item in
+     * the bookmark folder is a bookmark folder then the bookmarks will be interpreted as
      * top level tabs.
+     *
+     * @type {'bookmarkFolders'}
      */
+    // @ts-ignore
     folders: 'bookmarkFolders',
     /**
-     * This format uses bookmark separators to store tree information. 
-     * 
-     * An odd number of separators before a bookmark indicates that the bookmark is a 
-     * parent tab. Bookmarks after such a parent tab bookmark are considered children of it. 
-     * A pair of bookmark separators in a row decreases the tree level of bookmarks after 
+     * This format uses bookmark separators to store tree information.
+     *
+     * An odd number of separators before a bookmark indicates that the bookmark is a
+     * parent tab. Bookmarks after such a parent tab bookmark are considered children of it.
+     * A pair of bookmark separators in a row decreases the tree level of bookmarks after
      * that point.
+     *
+     * @type {'bookmarkSeparators'}
      */
+    // @ts-ignore
     separators: 'bookmarkSeparators',
     /**
-     * This format uses bookmark titles to store tree information and is the format used to 
-     * store tree information by Tree Style Tab v3.2.0 and later (earlier versions couldn't 
+     * This format uses bookmark titles to store tree information and is the format used to
+     * store tree information by Tree Style Tab v3.2.0 and later (earlier versions couldn't
      * store tree information at all).
-     * 
-     * Tree structure is saved by appending `>` characters at the beginning of a bookmark's 
-     * title followed by a space and then the tab's actual title. The number of `>` characters 
-     * determine what tree level the bookmark should be restored at. When the bookmarks are 
-     * created any bookmark title that begins with some `>` characters followed by a space are 
+     *
+     * Tree structure is saved by appending `>` characters at the beginning of a bookmark's
+     * title followed by a space and then the tab's actual title. The number of `>` characters
+     * determine what tree level the bookmark should be restored at. When the bookmarks are
+     * created any bookmark title that begins with some `>` characters followed by a space are
      * trimmed so that they don't cause issues.
+     *
+     * @type {'bookmarkTitles'}
      */
+    // @ts-ignore
     titles: 'bookmarkTitles',
 });

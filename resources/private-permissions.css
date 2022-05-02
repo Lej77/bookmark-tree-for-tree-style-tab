@@ -1,0 +1,13 @@
+@import "../ui/collapsable.css";
+@import "../ui/status-indicator.css";
+@import "../ui/screen-block.css";
+@import "../ui/utilities.css";
+@import "../ui/permissions.css";
+@import "../ui/tst-privacy-permission.css";
+
+html {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}

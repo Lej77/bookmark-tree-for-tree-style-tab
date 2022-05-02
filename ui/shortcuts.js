@@ -13,7 +13,7 @@ import {
 
 
 export function createShortcutsArea({
-  sectionAnimation,
+  sectionAnimation = {},
 
   commandInfos,
   headerMessage,
@@ -21,9 +21,8 @@ export function createShortcutsArea({
 
   resetButtonMessage,
   promptButtonMessage,
-} = {}) {
+}) {
   sectionAnimation = AnimationInfo.asInfo(sectionAnimation);
-
   const callbacks = [];
 
   const section = createCollapsableArea(sectionAnimation);
@@ -231,7 +230,7 @@ export function createShortcutsArea({
 
   // Create areas for all commands:
   browser.commands.getAll().then(async (commands) => {
-    for (let command of commands) {
+    for (const command of commands) {
       await createShortcutArea(command);
     }
 
@@ -248,7 +247,7 @@ export function createShortcutsArea({
     area: section.area,
     section,
     update: () => {
-      for (let callback of callbacks) {
+      for (const callback of callbacks) {
         callback();
       }
     },

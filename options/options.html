@@ -8,6 +8,12 @@
 
 <body>
   <div>
+    <div id="topLinkToOptionsPageArea">
+        <a id="topLinkToOptionsPage" target="_blank" class="message_options_openInSeparateTab"></a>
+        <br />
+        <br />
+    </div>
+
     <div id="contextMenuArea" class="sectionArea">
       <header class="message_options_section_ContextMenuActive"></header>
 
@@ -22,7 +28,7 @@
 
       <div>
         <label class="message_options_customTopLevelBookmarkContextMenuLabel"></label>
-        <input id="customTopLevelBookmarkContextMenuLabel" type="text">
+        <input id="customTopLevelBookmarkContextMenuLabel" data-placeholder-message="contextMenu_BookmarkTopLevelDefaultLabel" type="text">
       </div>
       <br />
       <br />
@@ -37,7 +43,7 @@
         <br />
         <div>
           <label class="message_options_customRestoreTreeContextMenuLabel"></label>
-          <input id="customRestoreTreeContextMenuLabel" type="text">
+          <input id="customRestoreTreeContextMenuLabel" data-placeholder-message="contextMenu_RestoreTree" type="text">
         </div>
       </div>
 
@@ -53,7 +59,7 @@
           <br />
           <div>
             <label class="message_options_customMigrateContextMenuLabel"></label>
-            <input id="customMigrateContextMenuLabel" type="text">
+            <input id="customMigrateContextMenuLabel" data-placeholder-message="contextMenu_MigrateTreeData" type="text">
           </div>
         </div>
         <br />
@@ -143,7 +149,7 @@
         <br />
         <div>
           <label class="message_options_customBookmarkTreeContextMenuLabel"></label>
-          <input id="customBookmarkTreeContextMenuLabel" type="text">
+          <input id="customBookmarkTreeContextMenuLabel" data-placeholder-message="contextMenu_BookmarkTree" type="text">
         </div>
       </div>
 
@@ -157,7 +163,7 @@
         <br />
         <div>
           <label class="message_options_customTSTContextMenuLabel"></label>
-          <input id="customTSTContextMenuLabel" type="text">
+          <input id="customTSTContextMenuLabel" data-placeholder-message="contextMenu_TreeStyleTabAndMTH" type="text">
         </div>
       </div>
 
@@ -171,7 +177,7 @@
         <br />
         <div>
           <label class="message_options_customMTHContextMenuLabel"></label>
-          <input id="customMTHContextMenuLabel" type="text">
+          <input id="customMTHContextMenuLabel" data-placeholder-message="contextMenu_TreeStyleTabAndMTH" type="text">
         </div>
       </div>
 
@@ -345,6 +351,9 @@
         <button id="TST_InternalId_UpdateButton" class="message_options_TST_InternalId_ForceUpdate"></button>
       </div>
     </div>
+    <br />
+
+    <div id="privacyPermissionsArea"></div>
     <br />
 
     <button id="resetSettingsButton" class="message_options_resetSettings"></button>

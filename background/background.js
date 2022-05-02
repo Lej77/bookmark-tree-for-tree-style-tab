@@ -1,9 +1,11 @@
+'use strict';
 
 import {
     cancelAllTrackedDelays,
     settings,
     settingsTracker,
     migrateSettings,
+    messageTypes,
 } from '../common/common.js';
 
 import {
@@ -44,7 +46,22 @@ import {
     createMTHContextMenuItem,
     removeMTHContextMenuItem,
 } from '../multiple-tab-handler/context-menu.js';
-import { SettingsTracker } from '../common/settings.js';
+
+import {
+    SettingsTracker
+} from '../common/settings.js';
+
+import {
+    PrivatePermissionDetector
+} from '../common/private-permission-detector.js';
+
+import {
+    TSTPrivacyPermissionChecker
+} from '../tree-style-tab/check-privacy-permissions.js';
+
+import {
+    PortManager
+} from '../common/connections.js';
 
 
 /**
@@ -63,13 +80,13 @@ import { SettingsTracker } from '../common/settings.js';
 /**
  * Migrate bookmarks with tree data from one format to another.
  *
- * @param {Object} Config Configure how the bookmark data should be changed.
- * @param {string} Config.bookmarkId The id for the bookmark folder that should have its data format changed.
- * @param {BookmarkFormat | 'auto'} Config.fromBookmarkFormat The tree data format that should be used to parse tree data.
- * @param {BookmarkFormat} Config.toBookmarkFormat The tree data format that the new migrated bookmarks should be saved with.
- * @param {string} Config.removeSuffix A suffix to remove from the original bookmark folder.
- * @param {string} Config.addSuffix A suffix to add the created bookmark folder.
- * @param {boolean} Config.onlyAddSuffixIfSuffixWasRemoved Only add the suffix to the created bookmark folder if the original folder had a suffix that could be removed.
+ * @param {Object} [Config] Configure how the bookmark data should be changed.
+ * @param {string} [Config.bookmarkId] The id for the bookmark folder that should have its data format changed.
+ * @param {BookmarkFormat | 'auto'} [Config.fromBookmarkFormat] The tree data format that should be used to parse tree data.
+ * @param {BookmarkFormat} [Config.toBookmarkFormat] The tree data format that the new migrated bookmarks should be saved with.
+ * @param {string} [Config.removeSuffix] A suffix to remove from the original bookmark folder.
+ * @param {string} [Config.addSuffix] A suffix to add the created bookmark folder.
+ * @param {boolean} [Config.onlyAddSuffixIfSuffixWasRemoved] Only add the suffix to the created bookmark folder if the original folder had a suffix that could be removed.
  * @returns {Promise<BookmarkTreeNode[]>} The created bookmarks.
  */
 async function migrateTreeData({
@@ -113,18 +130,18 @@ async function migrateTreeData({
 
 /**
  * Create bookmarks for some tabs.
- * 
+ *
  * @param {BrowserTab | BrowserTab[]} parentTabs Parent tab(s) to bookmark together with their children tabs.
- * @param {Object} Config Configure how the tabs should be bookmarked.
- * @param {boolean} Config.isTSTTab The provided tabs have Tree Style Tab data.
- * @param {string | null} Config.parentBookmarkId The id of the bookmark folder to use when bookmarking the tabs.
- * @param {BookmarkFormat} Config.bookmarkFormat Determines how tree data is stored in the bookmarks.
- * @param {boolean} Config.useLegacyGroupTabURL Convert Tree Style Tab's group tab URLs to use the legacy URL that is independent of Tree Style Tab's internal id.
- * @param {boolean} Config.newGroupTabFallbackURL Use the newer web extension Tree Style Tab fallback URL "ext+treestyletab:group" which replaces the older "about:treestyletab-group" URL.
- * @param {boolean} Config.maxTreeDepth The number of child levels from the provided parent tabs to include.
- * @param {boolean} Config.maxTotalTreeDepth The number of child levels from root tab to include.
- * @param {number} Config.warnWhenMoreThan If the number of tabs that should be bookmarked is greater than this amount then confirm with the user that they want to continue. False or negative to disable.
- * @param {string} Config.folderSuffix This suffix will be appended to the created bookmark folder's name.
+ * @param {Object} [Config] Configure how the tabs should be bookmarked.
+ * @param {boolean} [Config.isTSTTab] The provided tabs have Tree Style Tab data.
+ * @param {string | null} [Config.parentBookmarkId] The id of the bookmark folder to use when bookmarking the tabs.
+ * @param {BookmarkFormat} [Config.bookmarkFormat] Determines how tree data is stored in the bookmarks.
+ * @param {boolean} [Config.useLegacyGroupTabURL] Convert Tree Style Tab's group tab URLs to use the legacy URL that is independent of Tree Style Tab's internal id.
+ * @param {boolean} [Config.newGroupTabFallbackURL] Use the newer web extension Tree Style Tab fallback URL "ext+treestyletab:group" which replaces the older "about:treestyletab-group" URL.
+ * @param {boolean | number} [Config.maxTreeDepth] The number of child levels from the provided parent tabs to include.
+ * @param {boolean | number} [Config.maxTotalTreeDepth] The number of child levels from root tab to include.
+ * @param {number} [Config.warnWhenMoreThan] If the number of tabs that should be bookmarked is greater than this amount then confirm with the user that they want to continue. False or negative to disable.
+ * @param {string} [Config.folderSuffix] This suffix will be appended to the created bookmark folder's name.
  * @returns {Promise<BookmarkTreeNode[]>} The created bookmarks.
  */
 async function bookmarkTree(
@@ -184,15 +201,15 @@ async function bookmarkTree(
 
 /**
  * Get tree data from bookmarks.
- * 
+ *
  * @param {Object} Config Determine how to get the tree data.
  * @param {string} Config.bookmarkId The id of the bookmark that the user clicked or that is otherwise of interest.
- * @param {BookmarkFormat | 'auto'} Config.bookmarkFormat The format that should be used to parse the tree data.
+ * @param {BookmarkFormat | 'auto'} [Config.bookmarkFormat] The format that should be used to parse the tree data.
  */
 async function getBookmarkTreeData({
     bookmarkId,
     bookmarkFormat = 'auto',
-} = {}) {
+}) {
 
     /** @type {BookmarkTreeNode} */
     const clickedBookmark = (await browser.bookmarks.getSubTree(bookmarkId))[0];
@@ -207,7 +224,8 @@ async function getBookmarkTreeData({
         console.log('Auto detect tree data format for bookmarks - Decided on: ', bookmarkFormat);
     }
 
-    let treeNodes = await TreeInfoNode.parseFromBookmarks({ rootBookmark, format: bookmarkFormat, });
+    /** @type {TreeInfoNode[]} */
+    let treeNodes = /** @type {any} */ (await TreeInfoNode.parseFromBookmarks({ rootBookmark, format: bookmarkFormat, }));
     if (treeNodes && !Array.isArray(treeNodes)) {
         treeNodes = [treeNodes];
     }
@@ -240,8 +258,21 @@ async function getBookmarkTreeData({
  *
  * @param {Object} Config Configure how the tabs should be created.
  * @param {string} Config.bookmarkId The id for the bookmark that should be used used to create the tabs.
- * @param {BookmarkFormat | 'auto'} Config.bookmarkFormat The tree data format that should be used to parse tree data.
- * @returns {BrowserTab[]} Array of browser tab objects for the opened tabs.
+ * @param {any} [Config.handleParentLast = true] TODO
+ * @param {any} [Config.delayAfterTabOpen = () => -1] TODO
+ * @param {any} [Config.navigationOfOpenedTabDelay = () => -1] TODO
+ * @param {any} [Config.detachIncorrectParentAfterDelay = () => -1] TODO
+ * @param {any} [Config.allowNonCreatedParent = false] TODO
+ * @param {number} [Config.windowId = null] TODO
+ * @param {BookmarkFormat | 'auto'} [Config.bookmarkFormat] The tree data format that should be used to parse tree data.
+ * @param {any} [Config.fixGroupTabURLs = false] TODO
+ * @param {any} [Config.warnWhenMoreThan = -1] TODO
+ * @param {any} [Config.createTempTab = false] TODO
+ * @param {any} [Config.tempTabURL = ''] TODO
+ * @param {any} [Config.groupUnderTempTab = false] TODO
+ * @param {any} [Config.ensureOneParent = false] TODO
+ * @param {any} [Config.openAsDiscardedTabs = false] TODO
+ * @returns {Promise<BrowserTab[]>} Array of browser tab objects for the opened tabs.
  */
 async function restoreTree({
     bookmarkId,
@@ -259,7 +290,7 @@ async function restoreTree({
     groupUnderTempTab = false,
     ensureOneParent = false,
     openAsDiscardedTabs = false,
-} = {}) {
+}) {
 
     const { rootNode } = await getBookmarkTreeData({ bookmarkId, bookmarkFormat });
 
@@ -321,27 +352,40 @@ async function restoreTree({
 
 // #region Tree Style Tab
 
+/**
+ * Registration info from Tree Style Tab. Only available for Tree Style Tab version 3.0.12 or later.
+ * @typedef {Object} RegistrationInfo
+ * @property {string[]} grantedPermissions Currently granted permissions.
+ * @property {boolean} privateWindowAllowed A boolean, indicating allowed (or not) to be notified messages from private windows.
+ */
+
+/** @type {null | boolean | RegistrationInfo} */
+let latestTstRegistrationInfo = null;
+
 async function registerToTST() {
     let success = true;
     try {
         await unregisterFromTST();
 
-        if (!settings.hasTSTContextMenu) {
-            return true;
-        }
-
-        let registrationDetails = {
+        const registrationDetails = {
             type: 'register-self',
             name: browser.runtime.getManifest().name,
-            listeningTypes: ['ready', 'fake-contextMenu-click'],
+            listeningTypes: ['ready', 'permissions-changed'],
         };
+        if (settings.hasTSTContextMenu) {
+            registrationDetails.listeningTypes.push('fake-contextMenu-click');
+        }
 
-        await browser.runtime.sendMessage(kTST_ID, registrationDetails);
+        latestTstRegistrationInfo = await browser.runtime.sendMessage(kTST_ID, registrationDetails);
 
-        success = await createTSTContextMenuItem({
-            id: 'bookmark-tree',
-            title: settings.customTSTContextMenuLabel || browser.i18n.getMessage('contextMenu_TreeStyleTabAndMTH'),
-        });
+        if (settings.hasTSTContextMenu) {
+            success = await createTSTContextMenuItem({
+                id: 'bookmark-tree',
+                title: settings.customTSTContextMenuLabel || browser.i18n.getMessage('contextMenu_TreeStyleTabAndMTH'),
+            });
+        }
+
+        notifyPrivacyInfo();
     } catch (error) { return false; }
 
     return success;
@@ -351,12 +395,42 @@ async function unregisterFromTST() {
     try {
         await removeAllTSTContextMenuItems();
         await browser.runtime.sendMessage(kTST_ID, { type: 'unregister-self' });
+        latestTstRegistrationInfo = null;
     }
     catch (e) { return false; }
     return true;
 }
 
 // #endregion Tree Style Tab
+
+
+// #region Handle misconfigured privacy permissions
+
+const privatePermission = new PrivatePermissionDetector();
+let tstNotifiedAboutPrivateWindow = false;
+
+const getPrivacyInfo = () => {
+    const info = TSTPrivacyPermissionChecker.createInfo({ detector: privatePermission, tstNotifiedAboutPrivateWindow, });
+    if (latestTstRegistrationInfo !== null) {
+        info.tstPermission = null;
+        if (latestTstRegistrationInfo && typeof latestTstRegistrationInfo === 'object') {
+            info.tstPermission = Boolean(latestTstRegistrationInfo.privateWindowAllowed);
+        }
+    }
+    return info;
+};
+
+const tstPrivacyIssues = new TSTPrivacyPermissionChecker();
+tstPrivacyIssues.autoUpdatePopup = false;
+
+const notifyPrivacyInfo = () => {
+    tstPrivacyIssues.provideInfo(getPrivacyInfo());
+};
+privatePermission.promise.then(() => {
+    notifyPrivacyInfo();
+});
+
+// #endregion Handle misconfigured privacy permissions
 
 
 // #region Multiple Tab Handler
@@ -400,7 +474,7 @@ async function updateContextMenu() {
             { id: 'MigrateTreeData', title: settings.customMigrateContextMenuLabel, contexts: ['bookmark'], enabled: settings.hasMigrateContextMenu, parentId: bookmarkParentId, },
             { id: 'BookmarkTree', title: settings.customBookmarkTreeContextMenuLabel, contexts: ['tab'], enabled: settings.hasTabContextMenu },
         ]) {
-            let { id, title, contexts, enabled = true, isDefaults = false, parentId = null } = typeof contextMenuItem === 'string' ? { id: contextMenuItem } : contextMenuItem;
+            const { id, title, contexts, enabled = true, isDefaults = false, parentId = null } = typeof contextMenuItem === 'string' ? /** @type {Object} */ ({ id: contextMenuItem }) : contextMenuItem;
             if (!enabled) {
                 continue;
             }
@@ -548,7 +622,12 @@ settingsTracker.start.finally(async () => {
         ) {
             cancelAllTrackedDelays();
         }
+
+        if (changes.warnAboutMisconfiguredPrivacySettings) {
+            tstPrivacyIssues.autoUpdatePopup = settings.warnAboutMisconfiguredPrivacySettings;
+        }
     });
+    tstPrivacyIssues.autoUpdatePopup = settings.warnAboutMisconfiguredPrivacySettings;
 
     // #endregion Settings
 
@@ -557,13 +636,13 @@ settingsTracker.start.finally(async () => {
 
     /**
      * Bookmark the selected tabs in a specific window. If no window id is provided the current window will be used.
-     * 
-     * This will attempt to use the new multiselect WebExtensions API that is supported in Firefox 64 and later. 
+     *
+     * This will attempt to use the new multiselect WebExtensions API that is supported in Firefox 64 and later.
      * If that fails it will attempt to check if any tabs are selected in Multiple Tab Handler.
-     * 
+     *
      * If multiple tabs aren't selected it will bookmark the provided tab or the active tab in the provided window.
-     * 
-     * 
+     *
+     *
      * @returns {Promise<BookmarkTreeNode[]>} Saved Bookmarks
      */
     async function bookmarkSelectedTabs({ windowId = null, tab = null } = {}) {
@@ -594,13 +673,19 @@ settingsTracker.start.finally(async () => {
         switch (aSender.id) {
             case kTST_ID: {
                 switch (aMessage.type) {
+                    // Permission changed might require injecting style changes again.
+                    case 'permissions-changed':
                     case 'ready': {
                         // passive registration for secondary (or after) startup:
                         registerToTST();
-                        return Promise.resolve(Boolean(settings.hasTSTContextMenu));
+                        return Promise.resolve(true);
                     } break;
 
                     case 'fake-contextMenu-click': {
+                        if (aMessage.tab.incognito && !tstNotifiedAboutPrivateWindow) {
+                            tstNotifiedAboutPrivateWindow = true;
+                            notifyPrivacyInfo();
+                        }
                         bookmarkSelectedTabs({ tab: aMessage.tab });
                         return Promise.resolve(true);
                     } break;
@@ -668,5 +753,25 @@ settingsTracker.start.finally(async () => {
     });
 
     // #endregion Keyboard Commands
+
+
+    // #region Internal Messaging
+
+    const portManager = new PortManager();
+    portManager.onMessage.addListener(async (message, sender, disposables) => {
+        if (!message.type) {
+            return;
+        }
+        switch (message.type) {
+            case messageTypes.privacyPermission: {
+                return getPrivacyInfo();
+            }
+        }
+    });
+    tstPrivacyIssues.onPrivacyInfoChanged.addListener((info) => {
+        portManager.fireEvent(messageTypes.privacyPermissionChanged, [info]);
+    });
+
+    // #endregion Internal Messaging
 
 });

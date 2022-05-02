@@ -13,44 +13,44 @@ null;
 
 /**
  * An interface for disposable objects.
- * 
- * @typedef {Object} IDisposable 
- * @property {function()} Info.dispose Dispose of any resources that this object handles.
- * @property {EventSubscriber<undefined>} Info.onDisposed Notified when this object has been disposed.
- * @property {boolean} Info.isDisposed Indicates if this object has been disposed.
- * @property {boolean | undefined} Info.isActive Indicates if this object is still using its resources.
+ *
+ * @typedef {Object} IDisposable
+ * @property {function(): any} Info.dispose Dispose of any resources that this object handles.
+ * @property {EventSubscriber<undefined>} [Info.onDisposed] Notified when this object has been disposed.
+ * @property {boolean} [Info.isDisposed] Indicates if this object has been disposed.
+ * @property {boolean | undefined} [Info.isActive] Indicates if this object is still using its resources.
  */
 null;
 
 
 /**
  * Track disposables and allow for disposing of them all.
- * 
+ *
+ * @template {IDisposable} T
  * @class DisposableCollection
  */
 export class DisposableCollection {
 
   /**
    * Creates an instance of DisposableCollection.
-   * @param {IDisposable | IDisposable[] | null} initialDisposables Disposable object(s) that will be added to the collection.
+   * @param {T | T[] | null} initialDisposables Disposable object(s) that will be added to the collection.
    * @memberof DisposableCollection
    */
   constructor(initialDisposables = null) {
-    Object.assign(this, {
-      _isDisposed: false,
-      _trackedDisposables: [],
-      _disposedEvents: new WeakMap(),
+    this._isDisposed = false;
+    /** @type { T[] } */
+    this._trackedDisposables = [];
+    this._disposedEvents = new WeakMap();
 
-      _onDisposed: new EventManager(),
-    });
+    this._onDisposed = new EventManager();
 
     this.trackDisposables(initialDisposables);
   }
 
   /**
    * Add a disposable object to the collection. It will be disposed of when the collection is disposed.
-   * 
-   * @param {IDisposable | IDisposable[] | null} disposables The object(s) to add to the collection.
+   *
+   * @param {T | T[] | null | void} disposables The object(s) to add to the collection.
    * @memberof DisposableCollection
    */
   trackDisposables(disposables) {
@@ -95,8 +95,8 @@ export class DisposableCollection {
 
   /**
    * Remove an object from the collection. The object will no longer be disposed when the collection is disposed.
-   * 
-   * @param {IDisposable | IDisposable[] | null} disposables The object(s) to remove from the collection.
+   *
+   * @param {T | T[] | null} disposables The object(s) to remove from the collection.
    * @memberof DisposableCollection
    */
   untrackDisposables(disposables) {
@@ -136,10 +136,10 @@ export class DisposableCollection {
 
   /**
    * The disposable objects tracked by the collection.
-   * 
+   *
    * @readonly
    * @memberof DisposableCollection
-   * @returns {IDisposable[]} The tracked disposable objects.
+   * @returns {T[]} The tracked disposable objects.
    */
   get array() {
     return this._trackedDisposables.slice();
@@ -147,7 +147,7 @@ export class DisposableCollection {
 
   /**
    * Dispose of all object in the collection without disposing the collection itself.
-   * 
+   *
    * @memberof DisposableCollection
    */
   stop() {
@@ -164,7 +164,7 @@ export class DisposableCollection {
 
   /**
    * Dispose of the collection and all the object tracked by it.
-   * 
+   *
    * @memberof DisposableCollection
    */
   dispose() {
@@ -205,10 +205,10 @@ export class DisposableCollection {
     for (let propertyName of DisposableCollection.isDisposedPropertyNames) {
       let inverted = false;
       if (propertyName.startsWith('!')) {
-        propertyName = propertyName.substr(1);
+        propertyName = propertyName.slice(1);
         inverted = true;
       }
-      let value = obj[propertyName];
+      const value = obj[propertyName];
       if (value) {
         if (inverted) {
           return false;
@@ -222,51 +222,48 @@ export class DisposableCollection {
     return false;
   }
   static disposeOfObject(obj) {
-    for (let disposeFunctionName of DisposableCollection.disposeFunctionNames) {
+    for (const disposeFunctionName of DisposableCollection.disposeFunctionNames) {
       if (DisposableCollection.callFunction(obj, disposeFunctionName)) {
         break;
       }
     }
   }
 }
-Object.assign(DisposableCollection, {
-  disposeFunctionNames: [
-    'dispose',
-    // 'close',
-    // 'stop',
-    // 'cancel',
-  ],
-  onDisposedEventNames: [
-    'onDisposed',
-  ],
-  isDisposedPropertyNames: [
-    'isDisposed',
-    '!isActive',
-  ],
-});
+DisposableCollection.disposeFunctionNames = [
+  'dispose',
+  // 'close',
+  // 'stop',
+  // 'cancel',
+];
+DisposableCollection.onDisposedEventNames = [
+  'onDisposed',
+];
+DisposableCollection.isDisposedPropertyNames = [
+  'isDisposed',
+  '!isActive',
+];
 
 
 /**
  * Delay the creation of disposables.
- * 
+ *
  * @class DisposableCreators
  */
 export class DisposableCreators {
 
   constructor() {
-    Object.assign(this, {
-      _isDisposed: false,
-      _onDisposed: new EventManager(),
+    this._isDisposed = false;
+    this._onDisposed = new EventManager();
 
-      disposableCollection: null,
-      disposableCreators: [],
-    });
+    this.disposableCollection = null;
+    this.disposableCreators = [];
   }
 
+  // eslint-disable-next-line valid-jsdoc
   /**
    * Handle a disposable object returned from a callback.
-   * 
-   * @param {function(boolean) : null | IDisposable | IDisposable[]} createCallback A callback that returns a disposable object. The first arg is a Boolean that is `true` if the callback was delayed, otherwise it is `false`.
+   *
+   * @param {(delayed: boolean) => (void | null | IDisposable | IDisposable[])} createCallback A callback that returns a disposable object. The first arg is a Boolean that is `true` if the callback was delayed, otherwise it is `false`.
    * @memberof DisposableCreators
    */
   createDisposable(createCallback) {
@@ -281,7 +278,7 @@ export class DisposableCreators {
 
   /**
    * Call all callbacks to create the disposables.
-   * 
+   *
    * @memberof DisposableCreators
    */
   start() {
@@ -302,7 +299,7 @@ export class DisposableCreators {
 
   /**
    *  Dispose of all tracked disposables.
-   * 
+   *
    * @memberof DisposableCreators
    */
   stop() {
@@ -313,7 +310,7 @@ export class DisposableCreators {
 
   /**
    * Dispose of all tracked disposables and prevent any more from being created.
-   * 
+   *
    * @memberof DisposableCreators
    */
   dispose() {
@@ -333,7 +330,7 @@ export class DisposableCreators {
 
   /**
    * Is delaying the creation of any new disposables for later.
-   * 
+   *
    * @readonly
    * @memberof DisposableCreators
    */
@@ -343,7 +340,7 @@ export class DisposableCreators {
 
   /**
    * Creators have been called and any new creators will be created immediately.
-   * 
+   *
    * @readonly
    * @memberof DisposableCreators
    */

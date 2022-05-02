@@ -1,4 +1,7 @@
 {
+    "options_openInSeparateTab": {
+        "message": "Open this option page in a separate tab"
+    },
     "options_section_ContextMenuActive": {
         "message": "Context Menu Items"
     },
@@ -192,7 +195,7 @@
         "message": "Keyboard shortcuts"
     },
     "options_Commands_Info": {
-        "message": "Select one of the text inputs bellow and then make a keyboard combination such as \"Alt+X\" to bind the keyboard shortcut to the selected text box. You can also press the \"Prompt\" button and manually write down a keyboard shortcut if you prefer. (Keyboard shortcuts require Firefox 60 or later)"
+        "message": "Select one of the text inputs below and then make a keyboard combination such as \"Alt+X\" to bind the keyboard shortcut to the selected text box. You can also press the \"Prompt\" button and manually write down a keyboard shortcut if you prefer. (Keyboard shortcuts require Firefox 60 or later)"
     },
     "options_Commands_ResetButton": {
         "message": "Reset"
@@ -202,6 +205,39 @@
     },
     "options_Commands_PromptButton_Description": {
         "message": "Write text representing a keyboard shortcut. For example \"Alt+X\""
+    },
+    "permissions_Granted": {
+        "message": "True"
+    },
+    "permissions_NotGranted": {
+        "message": "False"
+    },
+    "privacyPermissions_Header": {
+        "message": "Access to private windows"
+    },
+    "privacyPermissions_Info": {
+        "message": "For this extension to work with private windows it is not enough to just grant it permission from Firefox. Instead you must also change the settings for Tree Style Tab so that it allows this extension to control and get notified about private windows via its APIs. To do this open up Tree Style Tab's option page and expand the \"Extra Features via Other Addons\" section. Inside it you must enabled the checkbox to \"Notify Messages from Private Windows\" for \"Bookmark Tree for Tree Style Tab\"."
+    },
+    "privacyPermissions_hasPrivacyPermission_Header": {
+        "message": "Has privacy permission:"
+    },
+    "privacyPermissions_hasPrivacyPermission_Error": {
+        "message": "Waiting for a private window to be opened"
+    },
+    "privacyPermissions_hasTreeStyleTabPrivacyPermission_Header": {
+        "message": "Tree Style Tab is allowed to send messages for private windows:"
+    },
+    "privacyPermissions_hasTreeStyleTabPrivacyPermission_Error": {
+        "message": "Not registered with Tree Style Tab yet"
+    },
+    "privacyPermissions_warnAboutMisconfiguredPrivacySettings": {
+        "message": "Open a popup window with a warning when misconfigured privacy permissions are detected. (When one of the below permissions is granted while the other isn't.)"
+    },
+    "privatePermissionPage_Title": {
+        "message": "Misconfigured Permissions for Private Windows - Bookmark Tree for Tree Style Tab"
+    },
+    "privatePermissionPage_Info": {
+        "message": "The addon \"Bookmark Tree for Tree Style Tab\" detected that you might want to give it access to private windows but privacy permissions were not configured correctly. To do this correctly you need to grant the extension access to private windows and also change the options for \"Tree Style Tab\" so that it responds to tree data requests for private windows."
     },
     "contextMenu_BookmarkTopLevelDefaultLabel": {
         "message": "Bookmark Tree for TST"
