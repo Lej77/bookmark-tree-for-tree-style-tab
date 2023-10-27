@@ -97,34 +97,38 @@ async function migrateTreeData({
     addSuffix = '',
     onlyAddSuffixIfSuffixWasRemoved = false,
 } = {}) {
+    try {
 
-    const { rootNode, rootBookmark } = await getBookmarkTreeData({ bookmarkId, bookmarkFormat: fromBookmarkFormat });
-    if (!rootNode) {
-        // Could be an empty folder.
-        return [];
+        const { rootNode, rootBookmark } = await getBookmarkTreeData({ bookmarkId, bookmarkFormat: fromBookmarkFormat });
+        if (!rootNode) {
+            // Could be an empty folder.
+            return [];
+        }
+
+        let wantedFolderTitle = rootBookmark.title;
+        if (wantedFolderTitle.endsWith(removeSuffix)) {
+            wantedFolderTitle = wantedFolderTitle.substr(0, wantedFolderTitle.length - removeSuffix.length);
+        } else if (onlyAddSuffixIfSuffixWasRemoved) {
+            addSuffix = '';
+        }
+
+        const bookmarkFolder = await browser.bookmarks.create({
+            type: 'folder',
+            title: wantedFolderTitle + addSuffix,
+            // Create the migrated folder right next to the original folder:
+            index: rootBookmark.index + 1,
+            parentId: rootBookmark.parentId,
+        });
+
+        return await rootNode.saveAsBookmarks({
+            parentBookmarkId: bookmarkFolder.id,
+            format: toBookmarkFormat || TreeInfoNode.bookmarkFormat.titles,
+            // Affects any sub folders (relevant for folders data format):
+            folderSuffix: addSuffix,
+        });
+    } catch (error) {
+        console.error(`Failed to migrate bookmarks with tree data into new format ${toBookmarkFormat}:\n`, error);
     }
-
-    let wantedFolderTitle = rootBookmark.title;
-    if (wantedFolderTitle.endsWith(removeSuffix)) {
-        wantedFolderTitle = wantedFolderTitle.substr(0, wantedFolderTitle.length - removeSuffix.length);
-    } else if (onlyAddSuffixIfSuffixWasRemoved) {
-        addSuffix = '';
-    }
-
-    const bookmarkFolder = await browser.bookmarks.create({
-        type: 'folder',
-        title: wantedFolderTitle + addSuffix,
-        // Create the migrated folder right next to the original folder:
-        index: rootBookmark.index + 1,
-        parentId: rootBookmark.parentId,
-    });
-
-    return rootNode.saveAsBookmarks({
-        parentBookmarkId: bookmarkFolder.id,
-        format: toBookmarkFormat || TreeInfoNode.bookmarkFormat.titles,
-        // Affects any sub folders (relevant for folders data format):
-        folderSuffix: addSuffix,
-    });
 }
 
 
@@ -158,44 +162,48 @@ async function bookmarkTree(
         folderSuffix = '',
     } = {}
 ) {
-    let treeNodes = await TreeInfoNode.createFromTabs(parentTabs, { isTSTTab });
-    if (!treeNodes) return null;
-    if (!Array.isArray(treeNodes)) {
-        treeNodes = [treeNodes];
-    }
-    if (treeNodes.length === 0) return null;
-
-    /** @type {TreeInfoNode} */
-    const rootNode = treeNodes[0].rootNode;
-
-    if (useLegacyGroupTabURL) {
-        // Fix group tab URLs (don't use URLs that are dependent on Tree Style Tab's internal id since that might change and cause the URLs to not work later):
-        await rootNode.convertGroupURL({ useLegacyURL: true, newFallbackURL: newGroupTabFallbackURL });
-    }
-
-    // This might remove some selected tree nodes if they are too deep:
-    rootNode.prune({ maxTreeDepth: maxTotalTreeDepth });
-    // Ensure only nodes close the selected nodes are kept:
-    rootNode.prune({ parentNodes: treeNodes, maxTreeDepth: maxTreeDepth });
-
-    if ((warnWhenMoreThan || warnWhenMoreThan === 0) && warnWhenMoreThan >= 0) {
-        const count = rootNode.count;
-        if (count > warnWhenMoreThan) {
-            const ok = await confirmWithNotification({
-                title: browser.i18n.getMessage('notifications_BookmarkTree_Confirm_Title'),
-                message: browser.i18n.getMessage('notifications_BookmarkTree_Confirm_Message', count),
-            });
-            if (!ok) return null;
+    try {
+        let treeNodes = await TreeInfoNode.fromBrowserTabs(parentTabs, { isTSTTab });
+        if (!treeNodes) return null;
+        if (!Array.isArray(treeNodes)) {
+            treeNodes = [treeNodes];
         }
-    }
+        if (treeNodes.length === 0) return null;
 
-    return rootNode.saveAsBookmarks({
-        parentBookmarkId,
-        format: bookmarkFormat || TreeInfoNode.bookmarkFormat.separators,
-        folderSuffix,
-        // Create a folder if more than one bookmark will be created:
-        inFolder: Boolean(rootNode.getNthContentNode(rootNode.url ? /* Has URL => find at least one child content node */ 0 :  /* No URL => find at least two child content nodes: */ 1)),
-    });
+        /** @type {TreeInfoNode} */
+        const rootNode = treeNodes[0].rootNode;
+
+        if (useLegacyGroupTabURL) {
+            // Fix group tab URLs (don't use URLs that are dependent on Tree Style Tab's internal id since that might change and cause the URLs to not work later):
+            await rootNode.convertGroupURL({ useLegacyURL: true, newFallbackURL: newGroupTabFallbackURL });
+        }
+
+        // This might remove some selected tree nodes if they are too deep:
+        rootNode.prune({ maxTreeDepth: maxTotalTreeDepth });
+        // Ensure only nodes close the selected nodes are kept:
+        rootNode.prune({ parentNodes: treeNodes, maxTreeDepth: maxTreeDepth });
+
+        if ((warnWhenMoreThan || warnWhenMoreThan === 0) && warnWhenMoreThan >= 0) {
+            const count = rootNode.count;
+            if (count > warnWhenMoreThan) {
+                const ok = await confirmWithNotification({
+                    title: browser.i18n.getMessage('notifications_BookmarkTree_Confirm_Title'),
+                    message: browser.i18n.getMessage('notifications_BookmarkTree_Confirm_Message', count),
+                });
+                if (!ok) return null;
+            }
+        }
+
+        return await rootNode.saveAsBookmarks({
+            parentBookmarkId,
+            format: bookmarkFormat || TreeInfoNode.bookmarkFormat.separators,
+            folderSuffix,
+            // Create a folder if more than one bookmark will be created:
+            inFolder: Boolean(rootNode.getNthContentNode(rootNode.url ? /* Has URL => find at least one child content node */ 0 :  /* No URL => find at least two child content nodes: */ 1)),
+        });
+    } catch (error) {
+        console.error(`Failed to bookmark tabs with tree data:\n`, error);
+    }
 }
 
 
@@ -258,20 +266,22 @@ async function getBookmarkTreeData({
  *
  * @param {Object} Config Configure how the tabs should be created.
  * @param {string} Config.bookmarkId The id for the bookmark that should be used used to create the tabs.
- * @param {any} [Config.handleParentLast = true] TODO
- * @param {any} [Config.delayAfterTabOpen = () => -1] TODO
- * @param {any} [Config.navigationOfOpenedTabDelay = () => -1] TODO
- * @param {any} [Config.detachIncorrectParentAfterDelay = () => -1] TODO
- * @param {any} [Config.allowNonCreatedParent = false] TODO
+ * @param {boolean} [Config.handleParentLast = true] TODO
+ * @param {() => number} [Config.delayAfterTabOpen = () => -1] TODO
+ * @param {() => number} [Config.navigationOfOpenedTabDelay = () => -1] TODO
+ * @param {() => number} [Config.detachIncorrectParentAfterDelay = () => -1] TODO
+ * @param {boolean} [Config.allowNonCreatedParent = false] TODO
  * @param {number} [Config.windowId = null] TODO
  * @param {BookmarkFormat | 'auto'} [Config.bookmarkFormat] The tree data format that should be used to parse tree data.
- * @param {any} [Config.fixGroupTabURLs = false] TODO
- * @param {any} [Config.warnWhenMoreThan = -1] TODO
- * @param {any} [Config.createTempTab = false] TODO
- * @param {any} [Config.tempTabURL = ''] TODO
- * @param {any} [Config.groupUnderTempTab = false] TODO
- * @param {any} [Config.ensureOneParent = false] TODO
- * @param {any} [Config.openAsDiscardedTabs = false] TODO
+ * @param {boolean} [Config.fixGroupTabURLs = false] Modify group tab URLs so that they are restored correctly.
+ * @param {boolean} [Config.fixGroupTabToSidebery = false] Restore group tabs in a way that sidebery understands.
+ * @param {number} [Config.warnWhenMoreThan = -1] TODO
+ * @param {boolean} [Config.createTempTab = false] TODO
+ * @param {string} [Config.tempTabURL = ''] TODO
+ * @param {boolean} [Config.groupUnderTempTab = false] TODO
+ * @param {boolean} [Config.ensureOneParent = false] TODO
+ * @param {boolean} [Config.openAsDiscardedTabs = false] TODO
+ * @param {boolean} [Config.openAsDiscardedTabs_fixOpenerIdForInternalUrls = false] TODO
  * @returns {Promise<BrowserTab[]>} Array of browser tab objects for the opened tabs.
  */
 async function restoreTree({
@@ -284,67 +294,73 @@ async function restoreTree({
     windowId = null,
     bookmarkFormat = 'auto',
     fixGroupTabURLs = false,
+    fixGroupTabToSidebery = false,
     warnWhenMoreThan = -1,
     createTempTab = false,
     tempTabURL = '',
     groupUnderTempTab = false,
     ensureOneParent = false,
     openAsDiscardedTabs = false,
+    openAsDiscardedTabs_fixOpenerIdForInternalUrls = false
 }) {
+    try {
+        const { rootNode } = await getBookmarkTreeData({ bookmarkId, bookmarkFormat });
 
-    const { rootNode } = await getBookmarkTreeData({ bookmarkId, bookmarkFormat });
-
-    if (!rootNode) {
-        // Could be an empty folder.
-        return [];
-    }
-
-    if (ensureOneParent && !rootNode.url && rootNode.children.length > 1 && rootNode.hasContent) {
-        rootNode.url = getGroupTabURL({ name: rootNode.title });
-    }
-
-    if (tempTabURL.toLowerCase() === 'about:newtab') {
-        tempTabURL = '';
-    }
-
-    if (fixGroupTabURLs) {
-        await rootNode.convertGroupURL({ useLegacyURL: false });
-
-        if (tempTabURL) {
-            const groupInfo = getGroupTabInfo(tempTabURL);
-            if (groupInfo) tempTabURL = getGroupTabURL({ internalId: await getInternalTSTId(), urlArguments: groupInfo.urlArguments });
+        if (!rootNode) {
+            // Could be an empty folder.
+            return [];
         }
-    }
 
-
-    if ((warnWhenMoreThan || warnWhenMoreThan === 0) && warnWhenMoreThan >= 0) {
-        const count = rootNode.count;
-        if (count > warnWhenMoreThan) {
-            const ok = await confirmWithNotification({
-                title: browser.i18n.getMessage('notifications_RestoreTree_Confirm_Title'),
-                message: browser.i18n.getMessage('notifications_RestoreTree_Confirm_Message', count),
-            });
-            if (!ok) return [];
+        if (ensureOneParent && !rootNode.url && rootNode.children.length > 1 && rootNode.hasContent) {
+            rootNode.url = getGroupTabURL({ name: rootNode.title });
         }
+
+        if (tempTabURL.toLowerCase() === 'about:newtab') {
+            tempTabURL = '';
+        }
+
+        if (fixGroupTabURLs) {
+            await rootNode.convertGroupURL({ useLegacyURL: false, useSideberyURL: fixGroupTabToSidebery });
+
+            if (tempTabURL) {
+                const groupInfo = getGroupTabInfo(tempTabURL);
+                if (groupInfo) tempTabURL = getGroupTabURL({ internalId: await getInternalTSTId(), urlArguments: groupInfo.urlArguments });
+            }
+        }
+
+
+        if ((warnWhenMoreThan || warnWhenMoreThan === 0) && warnWhenMoreThan >= 0) {
+            const count = rootNode.count;
+            if (count > warnWhenMoreThan) {
+                const ok = await confirmWithNotification({
+                    title: browser.i18n.getMessage('notifications_RestoreTree_Confirm_Title'),
+                    message: browser.i18n.getMessage('notifications_RestoreTree_Confirm_Message', count),
+                });
+                if (!ok) return [];
+            }
+        }
+
+        return await rootNode.openAsTabs({
+            windowId,
+
+            delayAfterTabOpen,
+            navigationOfOpenedTabDelay,
+            detachIncorrectParentAfterDelay,
+
+            handleParentLast,
+            allowNonCreatedParent,
+
+            createTempTab,
+            tempTabURL,
+            groupUnderTempTab,
+
+            openAsDiscardedTabs,
+            fixOpenerIdForInternalUrls: openAsDiscardedTabs_fixOpenerIdForInternalUrls,
+            dontFocusOnNewTabs: openAsDiscardedTabs,
+        });
+    } catch (error) {
+        console.error(`Failed to restore bookmarked tabs with tree data:\n`, error);
     }
-
-    return rootNode.openAsTabs({
-        windowId,
-
-        delayAfterTabOpen,
-        navigationOfOpenedTabDelay,
-        detachIncorrectParentAfterDelay,
-
-        handleParentLast,
-        allowNonCreatedParent,
-
-        createTempTab,
-        tempTabURL,
-        groupUnderTempTab,
-
-        openAsDiscardedTabs,
-        dontFocusOnNewTabs: openAsDiscardedTabs,
-    });
 }
 
 // #endregion Bookmark and Restore Tree Data
@@ -549,17 +565,20 @@ settingsTracker.start.finally(async () => {
     // #region Settings
 
     const getBookmarkTreeSettings = () => {
-        return {
+        /** @type {Partial<Parameters<typeof bookmarkTree>[1]>} */
+        const config = {
             bookmarkFormat: settings.bookmarkTreeWithBookmarkFormat,
             useLegacyGroupTabURL: settings.bookmarkGroupTabsWithLegacyURL,
             newGroupTabFallbackURL: settings.bookmarkGroupTabsWithLegacyURL_NewerFallbackURL,
             warnWhenMoreThan: settings.warnWhenBookmarkingMoreThan,
             folderSuffix: settings.bookmarkSuffix,
         };
+        return config;
     };
     const getRestoreTreeSettings = () => {
         const asDiscarded = majorBrowserVersion >= 63 && settings.openAsDiscardedTabs;
-        return {
+        /** @type {Partial<Parameters<typeof restoreTree>[0]>} */
+        const config = {
             handleParentLast: settings.setParentAfterTabCreate,
 
             delayAfterTabOpen: () => settings.delayAfterTabOpen,
@@ -571,21 +590,26 @@ settingsTracker.start.finally(async () => {
             groupUnderTempTab: settings.gruopUnderTempTabWhenRestoring,
             ensureOneParent: settings.ensureOneParentWhenCreatingTabs,
             openAsDiscardedTabs: asDiscarded,
+            openAsDiscardedTabs_fixOpenerIdForInternalUrls: settings.openAsDiscardedTabs_fixOpenerTabIdForInternalFirefoxUrls,
 
             bookmarkFormat: settings.restoreTreeWithBookmarkFormat,
 
             fixGroupTabURLs: settings.fixGroupTabURLsOnRestore,
+            fixGroupTabToSidebery: settings.groupTab_restoreUsingSidebery,
             warnWhenMoreThan: settings.warnWhenRestoringMoreThan,
         };
+        return config;
     };
     const getMigrateTreeSettings = () => {
-        return {
+        /** @type {Partial<Parameters<typeof migrateTreeData>[0]>} */
+        const config = {
             fromBookmarkFormat: settings.migrateTreeData_fromBookmarkFormat,
             toBookmarkFormat: settings.migrateTreeData_toBookmarkFormat,
             removeSuffix: settings.migrateTreeData_removeSuffix,
             addSuffix: settings.migrateTreeData_addSuffix,
             onlyAddSuffixIfSuffixWasRemoved: settings.migrateTreeData_onlyAddSuffixIfSuffixWasRemoved,
         };
+        return config;
     };
 
     settingsTracker.onChange.addListener((changes) => {
@@ -646,21 +670,28 @@ settingsTracker.start.finally(async () => {
      * @returns {Promise<BookmarkTreeNode[]>} Saved Bookmarks
      */
     async function bookmarkSelectedTabs({ windowId = null, tab = null } = {}) {
-        const tabs = await getSelectedTabs({
-            majorBrowserVersion,
-            windowId,
-            tab,
-        });
+        /** @type {BrowserTab[]} */
+        let tabs;
+        try {
+            tabs = await getSelectedTabs({
+                majorBrowserVersion,
+                windowId,
+                tab,
+            });
+        } catch (error) {
+            console.error(`Bookmark tabs: failed to get currently selected tabs:\n`, error);
+            return [];
+        }
 
         // Bookmark Tabs:
         if (tabs.length === 0) {
             return [];
         } else if (tabs.length === 1) {
             // Bookmark tree with all of its children:
-            return bookmarkTree(tabs[0], getBookmarkTreeSettings());
+            return await bookmarkTree(tabs[0], getBookmarkTreeSettings());
         } else {
             // Bookmark only the selected tabs (not their children, but preserve parent-child relationships).
-            return bookmarkTree(tabs, Object.assign({ maxTreeDepth: 0 }, getBookmarkTreeSettings()));
+            return await bookmarkTree(tabs, Object.assign({ maxTreeDepth: 0 }, getBookmarkTreeSettings()));
         }
     }
 

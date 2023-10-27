@@ -86,6 +86,9 @@
     "options_openAsDiscardedTabs": {
         "message": "Open as unloaded tabs. (Requires Firefox 63 or later.)"
     },
+    "options_openAsDiscardedTabs_fixOpenerTabIdForInternalFirefoxUrls": {
+        "message": "Load any ancestor/parent tabs of internal firefox pages such as about:newtab, otherwise they won't be opened."
+    },
     "options_createTempTabWhenRestoring": {
         "message": "Create a temporary tab to focus on when restoring tabs."
     },
@@ -169,6 +172,9 @@
     },
     "options_fixGroupTabURLsOnRestore": {
         "message": "Fix Tree Style Tab group tab URLs. Allows opening group tabs with the legacy URL \"about:treestyletab-group\" or the newer \"ext+treestyletab:group\" URL and also group tab bookmarks that use the wrong internal id for Tree Style Tab."
+    },
+    "options_groupTab_restoreUsingSidebery": {
+        "message": "Open group tabs with a URL that Sidebery will load correctly. (Currently need to close and re-open Sidebery's sidebar for the group tabs to be loaded.)"
     },
     "options_treeStyleTabInternalId": {
         "message": "Cached internal id for Tree Style Tab (used to fix group tabs):"

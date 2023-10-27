@@ -520,10 +520,18 @@ export class TreeInfoNode {
     }
 
 
-    async convertGroupURL({ useLegacyURL = false, newFallbackURL = false, recursive = true } = {}) {
+    async convertGroupURL({ useLegacyURL = false, newFallbackURL = false, recursive = true, useSideberyURL = false } = {}) {
         const groupInfo = getGroupTabInfo(this.url);
         if (groupInfo) {
-            this.url = getGroupTabURL({ internalId: (useLegacyURL ? null : await getInternalTSTId()), urlArguments: groupInfo.urlArguments, newFallbackURL });
+            if (useSideberyURL) {
+                // TODO: attempt to find an existing open group tab with Sidebery's internal id, and use that instead.
+
+                // Need a URL like, but its best if it is actually valid, so we use our own internal id:
+                // `moz-extension://00000000-0000-0000-0000-000000000000/sidebery/group.html#` + encodeURIComponent(groupInfo.name);
+                this.url = browser.runtime.getURL('sidebery/group.html#' + encodeURIComponent(groupInfo.name));
+            } else {
+                this.url = getGroupTabURL({ internalId: (useLegacyURL ? null : await getInternalTSTId()), urlArguments: groupInfo.urlArguments, newFallbackURL });
+            }
         }
         if (recursive) {
             const params = arguments[0];
@@ -599,6 +607,46 @@ export class TreeInfoNode {
         return Boolean(this.firstContentNode);
     }
 
+    get isAboutUrl() {
+        return this.url && this.url.startsWith('about:');
+    }
+    get isFirefoxNewTabUrl() {
+        return this.url && this.url.toLowerCase() === 'about:newtab';
+    }
+    get isExtensionUrl() {
+        return this.url && this.url.startsWith('moz-extension');
+    }
+    get canBeOpenedAsDiscardedTab() {
+        return !this.isAboutUrl;
+    }
+
+    /** Check if a predicate is true for any child node.
+     *
+     * @param {(node: TreeInfoNode) => boolean} callback
+     * @return {boolean} If any callback returns `true`.
+     * @memberof TreeInfoNode
+     */
+    hasAnyChild(callback) {
+        for (const child of this.children) {
+            if (callback(child)) return true;
+            if (!child.url && child.hasAnyChild(callback)) return true;
+        }
+        return false;
+    }
+    /** Check if a predicate is true for any descendant node.
+     *
+     * @param {(node: TreeInfoNode) => boolean} callback
+     * @return {boolean} If any callback returns `true`.
+     * @memberof TreeInfoNode
+     */
+    hasAnyDescendant(callback) {
+        for (const child of this.children) {
+            if (callback(child)) return true;
+            if (child.hasAnyDescendant(callback)) return true;
+        }
+        return false;
+    }
+
     // #endregion Node meta info
 
 
@@ -621,6 +669,7 @@ export class TreeInfoNode {
      * @param {any} [Config.focusPreviousTab = false] TODO
      * @param {any} [Config.dontFocusOnNewTabs = false] TODO
      * @param {any} [Config.openAsDiscardedTabs = false] TODO
+     * @param {boolean} [Config.fixOpenerIdForInternalUrls] Loaded tabs tabs can't have their openerTabId to an unloaded tab and internal pages must be loaded. So ensure their ancestor tabs are not discarded when created.
      * @returns {Promise<BrowserTab[]>} The browser tabs that were opened.
      * @memberof TreeInfoNode
      */
@@ -640,6 +689,7 @@ export class TreeInfoNode {
         focusPreviousTab = false,
         dontFocusOnNewTabs = false,
         openAsDiscardedTabs = false,
+        fixOpenerIdForInternalUrls = false,
     } = {}) {
 
         let previousActiveTab = null;
@@ -703,6 +753,7 @@ export class TreeInfoNode {
 
         // #region Set tree info after tab create
 
+        /** @type {null | (() => Promise<void> | void)[]} */
         let callbacks = null;
         if (!handleParentId && handleParentLast) {
             callbacks = [];
@@ -728,8 +779,8 @@ export class TreeInfoNode {
 
         // #region Create Tab
 
-        /** @type {BrowserTab} */
-        let tab;
+        /** @type {null | BrowserTab} */
+        let tab = null;
         try {
 
             if (this.url) {
@@ -741,16 +792,22 @@ export class TreeInfoNode {
 
                 let navigationDelay = navigationOfOpenedTabDelay();
                 let navigationURL = null;
-                if (createDetails.url.toLowerCase() === 'about:newtab') {
-                    delete createDetails.url;
-                } else if (navigationDelay >= 0) {
-                    navigationURL = createDetails.url;
-                    createDetails.url = 'about:blank';
+
+                if (createDetails.url) {
+                    if (createDetails.url.toLowerCase() === 'about:newtab') {
+                        delete createDetails.url;
+                    } else if (navigationDelay >= 0 && createDetails.url !== 'about:blank') {
+                        navigationURL = createDetails.url;
+                        createDetails.url = 'about:blank';
+                    }
                 }
 
-
-
-                if (openAsDiscardedTabs && createDetails.url && !createDetails.url.toLowerCase().startsWith('about:')) {
+                if (
+                    openAsDiscardedTabs &&
+                    createDetails.url &&
+                    !createDetails.url.toLowerCase().startsWith('about:') &&
+                    (!fixOpenerIdForInternalUrls || !this.hasAnyDescendant(node => node.isAboutUrl))
+                ) {
                     createDetails.discarded = true;
                     createDetails.title = this.title;
                 }
@@ -774,13 +831,21 @@ export class TreeInfoNode {
                 try {
                     tab = await browser.tabs.create(createDetails);
                 } catch (error) {
-                    let lastURL = createDetails.url;
-                    createDetails.url = `about:blank?${lastURL}`;
-                    if (createDetails.discarded) {
-                        delete createDetails.discarded;
-                        delete createDetails.title;
+                    const previously = structuredClone(createDetails);
+                    if (previously.url) {
+                        let lastURL = createDetails.url;
+                        createDetails.url = `about:blank?${lastURL}`;
+
+                        if (createDetails.discarded) {
+                            delete createDetails.discarded;
+                            delete createDetails.title;
+                        }
+
+                        console.warn(`Failed to open "${lastURL}" so opening "${createDetails.url}" instead. Previous tried to open tab using creation info:\n`, previously);
+                    } else {
+                        console.warn(`Failed to open "about:newtab" tab using creation info:\n`, previously);
+                        throw error;
                     }
-                    console.log(`Failed to open "${lastURL}" open "${createDetails.url}" instead.`);
                     tab = await browser.tabs.create(createDetails);
                 }
                 tabs.push(tab);
@@ -1070,32 +1135,54 @@ export class TreeInfoNode {
      * @returns {Promise<TreeInfoNode[]>} `TreeInfoNode`s that were parsed from the browser tabs.
      * @memberof TreeInfoNode
      */
-    static async createFromTabs(parentTabs, { isTSTTab = false } = {}) {
+    static async fromBrowserTabs(parentTabs, { isTSTTab = false } = {}) {
 
         // #region Argument checks
 
         if (!parentTabs) {
             return [];
         }
-        let single = false;
         if (!Array.isArray(parentTabs)) {
             parentTabs = [parentTabs];
-            single = true;
         }
         if (parentTabs.length === 0) {
             return [];
         }
-        /** @type { TSTTab[] } */
-        const tstTabs = isTSTTab ? /** @type {TSTTab[]} */ (parentTabs) : await getTSTTabs(parentTabs.map(tab => tab.id));
+        /** @type { TSTTab[] | null } tabs from TST api or `null` if TST could not be reached. */
+        let tstTabs = null;
+        try {
+            tstTabs = isTSTTab ? /** @type {TSTTab[]} */ (parentTabs) : await getTSTTabs(parentTabs.map(tab => tab.id));
+        } catch (error) {
+            // TST not installed?
+        }
 
         // #endregion Argument checks
 
 
         // #region Create Nodes
 
+        /** @type {Object<string, TreeInfoNode>} */
         const nodeLookup = {};
+        /** @type {Object<string, BrowserTab | TSTTab>} */
         const tabLookup = {};
-        const tabs = tstTabs.slice();
+        /** @type {(BrowserTab | TSTTab)[]} Queue of parent tabs and their descendants. */
+        const tabs = tstTabs !== null ? tstTabs.slice() : parentTabs.slice();
+
+        if (tstTabs === null) {
+            // TST was not installed => find child tabs using `openerTabId`:
+            /** @type {BrowserTab[]} */
+            const windowTabs = await browser.tabs.query({ windowId: parentTabs[0].windowId });
+            const parentIds = new Set(parentTabs.map(tab => tab.id));
+            for (const tab of windowTabs) {
+                if (tab.openerTabId === undefined) continue;
+                if (!parentIds.has(tab.openerTabId)) continue;
+
+                tabs.push(tab);
+                // Find children of this tab as well:
+                parentIds.add(tab.id);
+            }
+        }
+
         while (tabs.length > 0) {
             const tab = tabs.shift();
             if (!tabLookup[tab.id]) {
@@ -1112,7 +1199,11 @@ export class TreeInfoNode {
                 const node = new TreeInfoNode({ title: tab.title, url: tab.url });
                 node.addInstance(TreeInfoNode.instanceTypes.tab, tab.id, tab);
                 nodeLookup[tab.id] = node;
-                tabs.push(...tab.children);
+                if (tstTabs !== null) {
+                    if ('children' in tab) {
+                        tabs.push(...tab.children);
+                    }
+                }
             }
         }
 
@@ -1121,18 +1212,33 @@ export class TreeInfoNode {
 
         // #region Set relationships
 
-        for (const tabId of Object.keys(nodeLookup)) {
-            nodeLookup[tabId].addChildren(tabLookup[tabId].children.map(tab => nodeLookup[tab.id]));
+        for (const [tabId, node] of Object.entries(nodeLookup)) {
+            const tab = tabLookup[tabId];
+            if (tstTabs !== null) {
+                // Using tree data from Tree Style Tab:
+                if ('children' in tab) {
+                    node.addChildren(tab.children.map(tab => nodeLookup[tab.id]));
+                }
+            } else if (tab.openerTabId !== undefined) {
+                // Using tree data from browser's own openerTabId. (TST and
+                // similar addons make sure to update this when they change the
+                // tree structure.)
+                const parentNode = nodeLookup[tab.openerTabId];
+                if (parentNode) {
+                    parentNode.addChildren(node);
+                }
+            }
         }
 
         // #endregion Set relationships
 
 
-        const result = tstTabs.map(tab => nodeLookup[tab.id]).filter(node => node);
+        const result = parentTabs.map(tab => nodeLookup[tab.id]).filter(node => node);
 
 
         // #region Make root node if needed
 
+        // collect top most parents under a single "root" node:
         const rootResultNodes = [];
         for (const node of result) {
             const rootNode = node.rootNode;
@@ -1147,11 +1253,7 @@ export class TreeInfoNode {
         // #endregion Make root node if needed
 
 
-        if (result.length === 1 && single) {
-            return result[0];
-        } else {
-            return result;
-        }
+        return result;
     }
 
     /**

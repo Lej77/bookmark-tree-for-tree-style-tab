@@ -9,9 +9,9 @@
 <body>
   <div>
     <div id="topLinkToOptionsPageArea">
-        <a id="topLinkToOptionsPage" target="_blank" class="message_options_openInSeparateTab"></a>
-        <br />
-        <br />
+      <a id="topLinkToOptionsPage" target="_blank" class="message_options_openInSeparateTab"></a>
+      <br />
+      <br />
     </div>
 
     <div id="contextMenuArea" class="sectionArea">
@@ -28,7 +28,8 @@
 
       <div>
         <label class="message_options_customTopLevelBookmarkContextMenuLabel"></label>
-        <input id="customTopLevelBookmarkContextMenuLabel" data-placeholder-message="contextMenu_BookmarkTopLevelDefaultLabel" type="text">
+        <input id="customTopLevelBookmarkContextMenuLabel"
+          data-placeholder-message="contextMenu_BookmarkTopLevelDefaultLabel" type="text">
       </div>
       <br />
       <br />
@@ -59,7 +60,8 @@
           <br />
           <div>
             <label class="message_options_customMigrateContextMenuLabel"></label>
-            <input id="customMigrateContextMenuLabel" data-placeholder-message="contextMenu_MigrateTreeData" type="text">
+            <input id="customMigrateContextMenuLabel" data-placeholder-message="contextMenu_MigrateTreeData"
+              type="text">
           </div>
         </div>
         <br />
@@ -149,7 +151,8 @@
         <br />
         <div>
           <label class="message_options_customBookmarkTreeContextMenuLabel"></label>
-          <input id="customBookmarkTreeContextMenuLabel" data-placeholder-message="contextMenu_BookmarkTree" type="text">
+          <input id="customBookmarkTreeContextMenuLabel" data-placeholder-message="contextMenu_BookmarkTree"
+            type="text">
         </div>
       </div>
 
@@ -258,10 +261,18 @@
       </label>
       <br />
       <br />
-      <label>
-        <input id="openAsDiscardedTabs" type="checkbox">
-        <text class="message_options_openAsDiscardedTabs"></text>
-      </label>
+      <div class="area">
+        <label>
+          <input id="openAsDiscardedTabs" type="checkbox">
+          <text class="message_options_openAsDiscardedTabs"></text>
+        </label>
+        <br />
+        <br />
+        <label class="requires_openAsDiscardedTabs">
+          <input id="openAsDiscardedTabs_fixOpenerTabIdForInternalFirefoxUrls" type="checkbox">
+          <text class="message_options_openAsDiscardedTabs_fixOpenerTabIdForInternalFirefoxUrls"></text>
+        </label>
+      </div>
       <br />
       <br />
       <p>
@@ -329,10 +340,18 @@
       </fieldset>
       <br />
       <br />
-      <label>
-        <input id="fixGroupTabURLsOnRestore" type="checkbox">
-        <text class="message_options_fixGroupTabURLsOnRestore"></text>
-      </label>
+      <div class="area">
+        <label>
+          <input id="fixGroupTabURLsOnRestore" type="checkbox">
+          <text class="message_options_fixGroupTabURLsOnRestore"></text>
+        </label>
+        <br />
+        <br />
+        <label class="requires_fixGroupTabURLsOnRestore">
+          <input id="groupTab_restoreUsingSidebery" type="checkbox">
+          <text class="message_options_groupTab_restoreUsingSidebery"></text>
+        </label>
+      </div>
       <p>
         <span class="message_options_warnWhenRestoringMoreThan"></span>
         <input id="warnWhenRestoringMoreThan" type="number" min="-1">

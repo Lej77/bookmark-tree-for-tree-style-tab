@@ -87,6 +87,11 @@ export function getDefaultSettings() {
         tempTabURL: '',
         gruopUnderTempTabWhenRestoring: true,
         ensureOneParentWhenCreatingTabs: true,
+        /** This will load any ancestors of internal firefox pages (like
+         * about:newtab or about:blank). This is because loaded tabs can't have
+         * their `openerTabId` set to a discarded tab and internal pages can't
+         * be opened as discarded. */
+        openAsDiscardedTabs_fixOpenerTabIdForInternalFirefoxUrls: true,
 
         // #endregion Options for opening tabs
 
@@ -113,6 +118,14 @@ export function getDefaultSettings() {
         bookmarkGroupTabsWithLegacyURL_NewerFallbackURL: true,
         /** Convert bookmark URLs that represent Tree Style Tab group tab pages to their correct URL before opening them. */
         fixGroupTabURLsOnRestore: true,
+        /** Open groups tabs with a URL like:
+         * "moz-extension://00000000-0000-0000-0000-000000000000/sidebery/group.html#New%20Tab".
+         * Sidebery will assume it is one of its group tabs that were saved
+         * externally and is now using the wrong internal id and fix it up for
+         * us (the relevant code runs when a sidebar is opened). See:
+         * https://github.com/mbnuqw/sidebery/blob/3933196225ed0b2f713cbb7831c81a7023b579ed/src/services/tabs.bg.actions.ts#L497-L519
+         */
+        groupTab_restoreUsingSidebery: false,
 
         // #endregion Handle Special URLs
 
@@ -140,7 +153,7 @@ export function getDefaultSettings() {
  * Migrate settings from an older version of this extension.
  *
  * @export
- * @template T
+ * @template {{}} T
  * @param {T} settings The settings to migrate. These should preferably be without defaults added since those might have changed.
  * @param {string} previousVersion The version of the extension that the settings come from.
  * @returns {Partial<T>} An object with values that should be changed for `settings`. Keys with `undefined` as value should be removed from the original settings.
