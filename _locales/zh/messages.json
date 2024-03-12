@@ -1,4 +1,8 @@
 {
+    "options_openInSeparateTab": {
+        "message": "在单独的标签页中打开此选项页面",
+        "hash": "76b68d4b07b8813b91cd9f457a4b0c3e"
+    },
     "options_section_ContextMenuActive": {
         "message": "上下文菜单项",
         "hash": "bc84d67a17295dc7030e144f2d976297"
@@ -111,6 +115,10 @@
         "message": "打开为未加载标签页。（这需要 Firefox 63 或者更高版本。）",
         "hash": "3f6bf93427396bfda06a7728b66b9f8e"
     },
+    "options_openAsDiscardedTabs_fixOpenerTabIdForInternalFirefoxUrls": {
+        "message": "加载 Firefox 内部页面（比如 about:newtab）的所有祖代标签页与父 标签页，反之它们将不会被打开。",
+        "hash": "1f204b28f1b22ce79d4490d41375ff06"
+    },
     "options_createTempTabWhenRestoring": {
         "message": "在还原标签页时创建一个临时标签页用来聚焦。",
         "hash": "343670d897898660a2cb46e2685ce779"
@@ -184,7 +192,7 @@
         "hash": "7342d8b7567b805d0259529f610899d9"
     },
     "options_bookmarkFormat_info_bookmarkSeparators": {
-        "message": "：此格式使用书签分割条来存储标签树信息。如果一个书签项前有奇数个分割条，则表明该书签项是一个父标签页。在这样一个标签页之后的书签项会被视作其子项。连续一对书签分割条则会降低位于该点之后的书签项的标签树层级。",
+        "message": "：此格式使用书签分割条来存储标签树信息。\n如果一个书签项前有奇数个分割条，则表明该书签项是一个父标签页。在这样一个标签页之后的书签项会被视作其子项。连续一对书签分割条则会降低位于该点之后的书签项的标签树层级。",
         "hash": "e76fed785d99d6c84388b982d20533b2"
     },
     "options_bookmarkFormat_bookmarkFolders": {
@@ -192,7 +200,7 @@
         "hash": "ea30f2deff6991bd36af2f845760ce45"
     },
     "options_bookmarkFormat_info_bookmarkFolders": {
-        "message": "：此格式使用书签文件夹来存储标签树信息。书签文件夹中的第一个书签项代表父标签，而位于该文件夹中的其余书签项则是该父标签页的子标签页。如果该书签文件夹中的第一项还是一个文件夹，那么这些书签项会被视作顶层标签页。",
+        "message": "：此格式使用书签文件夹来存储标签树信息。\n书签文件夹中的第一个书签项代表父标签，而位于该文件夹中的其余书签项则是该父标签页的子标签页。如果该书签文件夹中的第一项还是一个文件夹，那么这些书签项会被视作顶层标签页。",
         "hash": "39498b786a239267bbfe1cde45611643"
     },
     "options_bookmarkFormat_bookmarkTitles": {
@@ -212,16 +220,20 @@
         "hash": "6dc201c33498057de881205ff70334ec"
     },
     "options_bookmarkGroupTabsWithLegacyURL": {
-        "message": "将带有 “about:treestyletab-group” 这一传统 URI 的 Tree Style Tab 分组标签页加入书签。这意味着，即使 Tree Style Tab 的内部 id 被更改，它们也会被正确打开。",
+        "message": "将带有 \"about:treestyletab-group\" 这一传统 URI 的 Tree Style Tab 分组标签页加入书签。这意味着，即使 Tree Style Tab 的内部 id 被更改，它们也会被正确打开。",
         "hash": "fb5b7f410ee3d77734a84db555c77b63"
     },
     "options_bookmarkGroupTabsWithLegacyURL_NewerFallbackURL": {
-        "message": "使用在 Tree Style Tab v3.1.6 中引进的 “ext+treestyletab:group” 这一全新的自定义分组标签页 URI 以替代旧版的 “about:treestyletab-group” 这一传统 URI 。",
+        "message": "使用在 Tree Style Tab v3.1.6 中引进的 \"ext+treestyletab:group\" 这一全新的自定义分组标签页 URI 来替代旧版的 \"about:treestyletab-group\" 这一传统 URI 。",
         "hash": "7952ecbb6fac2096db4ef9778f351f6b"
     },
     "options_fixGroupTabURLsOnRestore": {
-        "message": "修复 Tree Style Tab 分组标签页的网址。这样就能够打开带有 “about:treestyletab-group” 这一传统 URI 的分组标签页，以及使用了错误的 Tree Style Tab 内部 id 的分组标签页书签项。",
+        "message": "修复 Tree Style Tab 分组标签页的网址。这样就能够打开带有 \"about:treestyletab-group\" 这一传统网址的分组标签页，以及使用了错误的 Tree Style Tab 内部 id 的分组标签页书签项。",
         "hash": "37ac4cd67725657b975792e41ed69eb4"
+    },
+    "options_groupTab_restoreUsingSidebery": {
+        "message": "用一个让 Sidebery 可以正确加载的网址来打开分组标签页（目前，为了加载分组标签页，需要将 Sidebery 的侧栏关闭再重新打开。）",
+        "hash": "b205110e7d9bee8c00343122c9246252"
     },
     "options_treeStyleTabInternalId": {
         "message": "缓存的 Tree Style Tab 内部 id（用于修复分组标签页）：",
@@ -271,6 +283,50 @@
         "message": "请输入文本来表示一个键盘快捷键。比如 “Alt+X”",
         "hash": "2b60e52f0d530f4e64cb067e788ce50f"
     },
+    "permissions_Granted": {
+        "message": "是",
+        "hash": "2d26162c8b4948b9e1bb7afbcddff3cb"
+    },
+    "permissions_NotGranted": {
+        "message": "否",
+        "hash": "746d8eb67a9d40ab91403bae19a08c92"
+    },
+    "privacyPermissions_Header": {
+        "message": "访问隐私窗口",
+        "hash": "035b63d0e9d3d11f680070d7232d06d6"
+    },
+    "privacyPermissions_Info": {
+        "message": "为了让此扩展能够在隐私窗口中运行，仅在 Firefox 中授予权限是不够的\n。您还必须更改 Tree Style Tab 中的相关设置项，以使此扩展能通过 Tree Style Tab 的 API 来控制隐私窗口以及获取其通知。为此，请打开 Tree Style Tab 的选项页面，展开 \"通过其他附加组件提供的额外功能\" 一节。您需要在其中为 \"Bookmark Tree for Tree Style Tab\" 勾选 \"提示来自隐私窗口内的消息\" 复选框。",
+        "hash": "861fee7a7b190573973c35de1813bbf5"
+    },
+    "privacyPermissions_hasPrivacyPermission_Header": {
+        "message": "拥有隐私权限：",
+        "hash": "e494200a5ff4a66c0c7c9dca4a0d7dda"
+    },
+    "privacyPermissions_hasPrivacyPermission_Error": {
+        "message": "等待隐私窗口打开",
+        "hash": "aa5a0219cac825c1ce8ea12f69d83f43"
+    },
+    "privacyPermissions_hasTreeStyleTabPrivacyPermission_Header": {
+        "message": "Tree Style Tab 被允许为隐私窗口发送消息",
+        "hash": "c3d579a94e2c8a6b9802fcd416e8fd4b"
+    },
+    "privacyPermissions_hasTreeStyleTabPrivacyPermission_Error": {
+        "message": "尚未注册到 Tree Style Tab",
+        "hash": "3da9bb3360132e4524584f34c26c0489"
+    },
+    "privacyPermissions_warnAboutMisconfiguredPrivacySettings": {
+        "message": "当检测到隐私权限被错误配置时，打开一个带有警告消息的弹出窗口。（当下方权限中的一项被授予而剩余项没有时。）",
+        "hash": "c730ef4e171d8c1ad70c2f312c0685c7"
+    },
+    "privatePermissionPage_Title": {
+        "message": "隐私窗口权限配置错误 - Bookmark Tree for Tree Style Tab",
+        "hash": "28a3e271d1542b104d8ead4deca6cd89"
+    },
+    "privatePermissionPage_Info": {
+        "message": "附加组件 \"Bookmark Tree for Tree Style Tab\" 检测到您可能想要授予其访问隐私窗口的权限，但隐私权限没有被正确配置。若要正确执行此操作，您需要授予该扩展访问隐私窗口的权限，同时还需要更改 \"Tree Style Tab\" 中的相关选项，以便其能够响应隐私窗口中的标签树数据请求。",
+        "hash": "b13c089470d801ea7adde2c4234eb1d0"
+    },
     "contextMenu_BookmarkTopLevelDefaultLabel": {
         "message": "将 TST 标签树加入书签",
         "hash": "001ffee13b5a4e4f293fdef94eae44e6"
@@ -292,7 +348,7 @@
         "hash": "f98f1957dcb5ccc21f46472de987f5cc"
     },
     "bookmark_MultipleTabsTitle": {
-        "message": "$firstTitle$ 以及更多",
+        "message": "$firstTitle$ 等多项",
         "placeholders": {
             "firstTitle": { "content": "$1" }
         },
