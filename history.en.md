@@ -1,0 +1,57 @@
+# History
+
+- master/HEAD
+- 4.4 (2024-03-15)
+  - Update to `zh` locale by NightSharp. Thanks!
+- 4.3 (2023-10-27)
+  - Fix: ensure internal Firefox URLs such as the new tab page (about:newtab) are opened when creating discarded/unloaded tabs.
+  - Feature: option to open group tabs with a URL that is understood by [Sidebery](https://addons.mozilla.org/firefox/addon/sidebery/), the URL in question will be correctly loaded when Sidebery's sidebar is closed and re-opened.
+  - Feature: read tab tree data from [`openerTabId`](https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/tabs/Tab#openertabid) to support [Sidebery](https://addons.mozilla.org/firefox/addon/sidebery/) and potentially other addons that adds tree structure to tabs.
+- 4.2 (2022-05-02)
+  - Feature: link that opens the options page in a separate tab.
+  - Feature: some changes to the option page's dark theme.
+  - Feature: show default context menu item labels on the options page.
+  - Feature: warn about misconfigured privacy permissions (need to grant permissions from Tree Style Tab's option page).
+  - Bug Fix: always register to Tree Style Tab so that users can enable messages for private windows inside Tree Style Tab's option page.
+- 4.1 (2020-04-04)
+  - Update to `zh` locale by NightSharp. Thanks!
+- 4.0 (2020-03-30)
+  - Feature: a context menu item for bookmarks that migrates data from one bookmark format to another.
+  - Feature: options page has support for dark theme.
+  - Restructured context menu settings on options page to be easier to use.
+  - Feature: save and restore bookmarks that store tree data in their titles. This provides better compatibility with Tree Style Tab since bookmark titles are used by Tree Style Tab v3.2.0 and later to save tree information.
+  - Feature: support for the new Tree Style Tab group tab URL "ext+treestyletab:group" which replaces the older "about:treestyletab-group" URL.
+  - BugFix: Allow context menu items on unselected tabs to work even if multiple tabs are selected.
+- 3.1 (2020-03-30)
+  - New locale `zh` by NightSharp. Thanks!
+- 3.0 (2019-05-22)
+  - BugFix: updated to remain compatible with the new permissions system in Tree Style Tab v3.0.12.
+  - Refactored code to use modules.
+- 2.8 (2019-04-01)
+  - New setting: keyboard shortcut to bookmark tree data.
+- 2.7 (2019-03-08)
+  - BugFix: infinite wait when attempting to get Tree Style Tab's internal id.
+- 2.6 (2018-12-14)
+  - New setting: open as unloaded tabs.
+- 2.5 (2018-11-15)
+  - BugFix: not waiting for Tree Style Tab's internal id before opening tabs.
+  - New setting: context menu for Firefox Tabs (Tree Style Tab and Multiple Tab Handler seems to rely on the context menu items on Firefox's tabs in Firefox 64 and later).
+  - Feature: Better support for multiple selected tabs. In Firefox 64 and later the extension can now be used with multiple selected tabs in Firefox tab bar.
+  - Feature: Better management for Internal Tree Style Tab id. (Force Update button in options page.)
+  - Feature: Better keyboard support in options menu. (Section can now be opened and closed with keyboard.)
+- 2.4 (2018-05-22)
+  - New setting: custom URL for the temporary tab used when restoring tabs.
+  - New setting: delayed navigation to URL for opened tabs (can fix some problems when restoring tabs).
+- 2.3 (2018-05-22)
+  - New setting: group tabs under temp tab (can fix some problems when restoring tabs).
+- 2.2 (2018-05-22)
+  - Restore Tree context menu item can restore trees even when not used on a bookmark folder.
+- 2.1 (2018-05-21)
+  - New setting: ensure created tabs have one parent tab.
+  - Collapse settings.
+- 2.0 (2018-05-21)
+  - Only bookmark selected tabs and not whole trees when using Multiple Tab Handler.
+  - New setting: open temporary tab when restoring trees to prevent new tabs from becoming children of the active tab.
+  - Custom label for "Restore Tree" context menu item.
+- 1.0 (2018-05-20)
+  - Released.
